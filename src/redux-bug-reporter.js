@@ -12,7 +12,7 @@ require('isomorphic-fetch')
 
 // On the server, UnconnectedBugReporter is a placeholder component
 let UnconnectedBugReporter = () => {
-  return false
+  return (<span/>)
 }
 
 if (isClientRender()) {

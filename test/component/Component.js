@@ -1,7 +1,6 @@
 /* eslint-env mocha */
 /* global fetch */
 import React from 'react'
-import _ from 'lodash'
 import { assert } from 'chai'
 import nock from 'nock'
 import { mount } from 'enzyme'
@@ -59,7 +58,7 @@ describe('Redux Bug Reporter component tests', () => {
         </Provider>
       )
       let reduxBugReporter = wrapper.find(UnconnectedBugReporter)
-      assert.isOk(_.isNull(reduxBugReporter.html()), 'Server render of redux bug reporter should be null')
+      assert.equal(reduxBugReporter.html(), '<span></span>', 'Server render of redux bug reporter should be an empty span' + reduxBugReporter.html())
     })
   })
   describe('Client side render tests', () => {
