@@ -5,5 +5,4 @@ script:
   - npm run lint
   - npm run test:cov
 after_success:
-  - npm run codecov
   - bash <(curl -s https://codecov.io/bash)
