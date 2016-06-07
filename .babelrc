@@ -1,0 +1,4 @@
+{
+  "plugins": ["transform-object-rest-spread", "transform-export-extensions"],
+  "presets": ["es2015", "react"]
+}

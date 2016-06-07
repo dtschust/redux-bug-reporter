@@ -1,0 +1,110 @@
+{
+  "name": "redux-bug-reporter",
+  "version": "0.1.0",
+  "description": "A bug reporter and bug playback tool for redux.",
+  "main": "lib/index.js",
+  "scripts": {
+    "build:lib": "babel ./src --out-dir ./lib",
+    "build:umd": "NODE_ENV=development webpack --config webpack.config.js",
+    "build:umd:min": "NODE_ENV=production webpack --config webpack.config.js",
+    "build:example": "NODE_ENV=production webpack --inline --progress --colors --config example/webpack.example.config.js",
+    "build": "npm run build:lib && npm run build:umd && npm run build:umd:min && npm run build:example",
+    "clean": "rimraf lib dist coverage example/bundle.js",
+    "codecov": "cat coverage/lcov.info | codecov",
+    "lint": "standard",
+    "prepublish": "npm run clean && npm run build",
+    "publish-gh-pages": "npm run prepublish && ./scripts/publish-gh-pages.js",
+    "start": "NODE_ENV=development webpack-dev-server --hot --inline --progress --colors --config example/webpack.example.config.js",
+    "start-static": "npm run build:example && cd example && live-server",
+    "test": "standard && mocha --compilers js:babel-register --recursive --require test/setup.js",
+    "test:watch": "npm test -- --watch",
+    "test:cov": "babel-node $(npm bin)/isparta cover _mocha -- --recursive --require test/setup.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dtschust/redux-bug-reporter.git"
+  },
+  "author": "Drew Schuster <dtschust@gmail.com>",
+  "license": "MIT",
+  "keywords": [
+    "react",
+    "redux",
+    "bug",
+    "debug",
+    "Drew-Bug",
+    "react-component",
+    "time travel",
+    "devtools"
+  ],
+  "bugs": {
+    "url": "https://github.com/dtschust/redux-bug-reporter/issues"
+  },
+  "homepage": "https://github.com/dtschust/redux-bug-reporter#readme",
+  "dependencies": {
+    "es6-promise": "^3.2.1",
+    "isomorphic-fetch": "^2.2.1",
+    "lodash.clonedeep": "^4.3.1",
+    "lodash.isequal": "^4.1.1",
+    "lodash.isfunction": "^3.0.7",
+    "react-redux": "^4.4.0",
+    "redux": "^3.3.1"
+  },
+  "peerDependencies": {
+    "react": ">=0.14.0"
+  },
+  "config": {
+    "ghooks": {
+      "pre-push": "npm test"
+    }
+  },
+  "standard": {
+    "parser": "babel-eslint",
+    "ignore": [
+      "dist/",
+      "example/todomvc/"
+    ]
+  },
+  "devDependencies": {
+    "autoprefixer": "^6.3.6",
+    "babel-cli": "^6.4.5",
+    "babel-core": "^6.4.5",
+    "babel-eslint": "^4.1.6",
+    "babel-loader": "^6.2.4",
+    "babel-plugin-react-transform": "^2.0.2",
+    "babel-plugin-transform-export-extensions": "^6.8.0",
+    "babel-plugin-transform-object-rest-spread": "^6.8.0",
+    "babel-polyfill": "^6.9.1",
+    "babel-preset-es2015": "^6.3.13",
+    "babel-preset-react": "^6.3.13",
+    "babel-register": "^6.8.0",
+    "chai": "^3.5.0",
+    "classnames": "^2.2.5",
+    "codecov.io": "^0.1.6",
+    "css-loader": "^0.23.1",
+    "enzyme": "^2.3.0",
+    "extract-text-webpack-plugin": "^1.0.1",
+    "gh-pages": "^0.11.0",
+    "ghooks": "^1.0.3",
+    "isparta": "^4.0.0",
+    "jsdom": "~5.4.3",
+    "less": "^2.7.1",
+    "less-loader": "^2.2.3",
+    "live-server": "^1.0.0",
+    "lodash": "^4.12.0",
+    "mocha": "^2.4.5",
+    "nock": "^8.0.0",
+    "postcss-loader": "^0.9.1",
+    "proxyquire": "^1.7.9",
+    "react": ">=0.14.0",
+    "react-addons-test-utils": ">=0.14.0",
+    "react-dom": ">=0.14.0",
+    "react-transform-hmr": "^1.0.4",
+    "redux-thunk": "^2.1.0",
+    "rimraf": "^2.5.2",
+    "standard": "^5.4.1",
+    "style-loader": "^0.13.1",
+    "todomvc-app-css": "^2.0.6",
+    "webpack": "^1.13.0",
+    "webpack-dev-server": "^1.14.1"
+  }
+}

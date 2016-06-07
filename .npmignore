@@ -1,0 +1,7 @@
+node_modules/
+example/
+test/
+scripts/
+coverage/
+.github
+npm_debug.log
