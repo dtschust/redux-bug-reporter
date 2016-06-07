@@ -16,6 +16,7 @@ Authors: [Drew Schuster](https://github.com/dtschust) & [Greg Mathews](https://g
 ## Demo
 
 [✨DEMO ✨](http://dtschust.github.io/redux-bug-reporter)
+
 [Prototype Demo Video](https://www.youtube.com/watch?v=n8vkg_RVIRo)
 
 ## Features
