@@ -9,7 +9,7 @@ import { fromJS } from 'immutable'
 import App from './todomvc/containers/App'
 import configureStore from './todomvc/store/configureStore'
 import 'todomvc-app-css/index.css'
-
+import submitFn from '../src/integrations/console'
 const store = configureStore()
 
 function inputChange (payload) {
@@ -28,18 +28,6 @@ function incrementChangeCounter () {
       dispatch({type: 'DELAYED_ACTION'})
     }, 1000)
   }
-}
-
-const submitFn = (newBug) => {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      let { actions, initialState, state } = newBug
-      console.log('window.bugReporterPlayback(', actions, ',', initialState, ',', state, ', 100)')
-      console.warn('^^^ To play back, run the above command in the console ^^^')
-      window.alert('Check your developer console for the "filed" bug and instructions on how to replay it. Sorry about the alert.')
-      resolve({})
-    }, 2000)
-  })
 }
 
 const customDecode = (state) => {
@@ -62,7 +50,7 @@ const Root = function () {
         <ConnectedInput />
         <ConnectedListener />
         <App />
-        <ReduxBugReporter submit={submitFn} projectName='example' stringifyPayload customDecode={customDecode} />
+        <ReduxBugReporter submit={submitFn} projectName='example' customDecode={customDecode} />
       </div>
     </Provider>
   )

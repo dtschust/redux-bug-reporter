@@ -1,4 +1,3 @@
-/* global fetch */
 import React from 'react'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
@@ -7,8 +6,8 @@ import isFunction from 'lodash.isfunction'
 import { middlewareData, overloadStore, initializePlayback, finishPlayback, playbackFlag } from './store-enhancer'
 import isClientRender from './is-client-render'
 import { listenToErrors, errorData } from './utils'
+import createSubmit from './integrations/default'
 require('es6-promise').polyfill()
-require('isomorphic-fetch')
 
 // On the server, UnconnectedBugReporter is a placeholder component
 let UnconnectedBugReporter = () => {
@@ -29,7 +28,6 @@ if (isClientRender()) {
       redactStoreState: React.PropTypes.func,
       name: React.PropTypes.string,
       meta: React.PropTypes.any,
-      stringifyPayload: React.PropTypes.bool,
       customEncode: React.PropTypes.func,
       customDecode: React.PropTypes.func,
       // Passed in by redux-bug-reporter
@@ -122,7 +120,7 @@ if (isClientRender()) {
 
     submit: function (e) {
       e.preventDefault()
-      const {submit, projectName, storeState, redactStoreState, meta, stringifyPayload, customEncode} = this.props
+      const {submit, projectName, storeState, redactStoreState, meta, customEncode} = this.props
       let {reporter, description, screenshotURL, notes} = this.state
       this.setState({loading: true})
 
@@ -154,28 +152,13 @@ if (isClientRender()) {
         windowLocation: window.location.href
       }
 
-      // Stringify payload if required, useful for filing via sheetsu
-      if (stringifyPayload) {
-        newBug.actions = JSON.stringify(newBug.actions)
-        newBug.state = JSON.stringify(newBug.state)
-        newBug.initialState = JSON.stringify(newBug.initialState)
-      }
-
       // if submit is a function, call it instead of fetching
       // and attach to the promise returned
       if (isFunction(submit)) {
         promise = submit(newBug)
       } else {
-        promise = fetch(submit, {
-          method: 'post',
-          headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(newBug)
-        }).then(function (response) {
-          return response.json()
-        })
+        let submitFn = createSubmit({ url: submit })
+        promise = submitFn(newBug)
       }
 
       promise.then((json = {}) => {
