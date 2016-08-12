@@ -4,6 +4,7 @@ import { Provider, connect } from 'react-redux'
 import ReduxBugReporter from '../src/index'
 import '../src/redux-bug-reporter.less'
 import './index.less'
+import { fromJS } from 'immutable'
 
 import App from './todomvc/containers/App'
 import configureStore from './todomvc/store/configureStore'
@@ -41,6 +42,10 @@ const submitFn = (newBug) => {
   })
 }
 
+const customDecode = (state) => {
+  return { ...state, input: fromJS(state.input) }
+}
+
 const Root = function () {
   return (
     <Provider store={store}>
@@ -57,7 +62,7 @@ const Root = function () {
         <ConnectedInput/>
         <ConnectedListener/>
         <App />
-        <ReduxBugReporter submit={submitFn} projectName='example' stringifyPayload/>
+        <ReduxBugReporter submit={submitFn} projectName='example' stringifyPayload customDecode={customDecode}/>
       </div>
     </Provider>
   )
@@ -82,7 +87,7 @@ const Input = React.createClass({
 })
 
 const mapInputStateToProps = function ({ input }) {
-  return { value: input.value }
+  return { value: input.toJS().value }
 }
 
 const ConnectedInput = connect(mapInputStateToProps)(Input)
@@ -107,7 +112,7 @@ const Listener = React.createClass({
 })
 
 const mapListenerStateToProps = function ({ input }) {
-  let { value, numChanges } = input
+  let { value, numChanges } = input.toJS()
   return { value, numChanges }
 }
 
