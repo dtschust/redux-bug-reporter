@@ -4,6 +4,7 @@ import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import isEqual from 'lodash.isequal'
 import isFunction from 'lodash.isfunction'
+import { fromJS } from 'immutable'
 import { middlewareData, overloadStore, initializePlayback, finishPlayback, playbackFlag } from './store-enhancer'
 import isClientRender from './is-client-render'
 import { listenToErrors, errorData } from './utils'
@@ -73,16 +74,18 @@ if (isClientRender()) {
       this.setState({expanded: !this.state.expanded})
     },
 
-    bugReporterPlayback: function (actions, initialState, finalState, delay = 100) {
+    bugReporterPlayback: function (actions, initialState, finalState, options = { delay: 100, immutable: false }) {
       let { dispatch, overloadStore } = this.props
+      let { delay, immutable } = options
+
       if (delay === -1) {
         // Do not playback, just jump to the final state
-        overloadStore(finalState)
+        overloadStore((immutable ? fromJS(finalState) : finalState))
         return
       }
 
-      this.props.initializePlayback()
-      overloadStore(initialState)
+      this.props.initializePlayback((immutable ? fromJS(initialState) : initialState))
+      overloadStore()
 
       const performNextAction = () => {
         let action = actions[0]
