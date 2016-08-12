@@ -133,10 +133,14 @@ Alternatively, Redux Bug Reporter integrates quite easily with [Sheetsu](http://
 ### 4. Replay Filed Bugs
 To replay a filed bug, call the global `bugReporterPlayback` function with the appropriate parameters:
 ```js
-window.bugReporterPlayback(actions, initialState, state, delay)
+window.bugReporterPlayback(actions, initialState, state, options)
 ```
-The delay parameter is the amount of time (in ms) between actions during playback. The default value is 100. **Note: Setting a delay value of -1 will skip playback and just set the redux store state to be equal to the final state of the bug. This is useful in situations where an application maintains critical state outside of redux and playback does not work.**
+The options object consist of 2 properties: `delay` and `immutable`.
 
+The `delay` property is the amount of time (in ms) between actions during playback. The default value is 100. **Note: Setting a delay value of -1 will skip playback and just set the redux store state to be equal to the final state of the bug. This is useful in situations where an application maintains critical state outside of redux and playback does not work.**
+
+The `immutable` property is a boolean which default is set to `false`.
+When set to `true` the `bugReporterPlayback` will use Immutable's `fromJS` function before playing back the actions.
 
 
 ## Prop Types

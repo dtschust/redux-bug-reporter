@@ -1,6 +1,6 @@
 {
   "name": "redux-bug-reporter",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "A bug reporter and bug playback tool for redux.",
   "main": "lib/index.js",
   "scripts": {
@@ -24,6 +24,9 @@
     "url": "git+https://github.com/dtschust/redux-bug-reporter.git"
   },
   "author": "Drew Schuster <dtschust@gmail.com>",
+  "contributers": [
+    "Ramon Gebben <ramon@ra-ge.net>"
+  ],
   "license": "MIT",
   "keywords": [
     "react",
@@ -41,6 +44,7 @@
   "homepage": "https://github.com/dtschust/redux-bug-reporter#readme",
   "dependencies": {
     "es6-promise": "^3.2.1",
+    "immutable": "^3.8.1",
     "isomorphic-fetch": "^2.2.1",
     "lodash.clonedeep": "^4.3.1",
     "lodash.isequal": "^4.1.1",
