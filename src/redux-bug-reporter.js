@@ -30,6 +30,8 @@ if (isClientRender()) {
       name: React.PropTypes.string,
       meta: React.PropTypes.any,
       stringifyPayload: React.PropTypes.bool,
+      customEncode: React.PropTypes.func,
+      customDecode: React.PropTypes.func,
       // Passed in by redux-bug-reporter
       dispatch: React.PropTypes.func.isRequired,
       storeState: React.PropTypes.any.isRequired,
@@ -74,7 +76,7 @@ if (isClientRender()) {
     },
 
     bugReporterPlayback: function (actions, initialState, finalState, delay = 100) {
-      let { dispatch, overloadStore } = this.props
+      let { dispatch, overloadStore, customDecode } = this.props
       if (delay === -1) {
         // Do not playback, just jump to the final state
         overloadStore(finalState)
@@ -82,6 +84,10 @@ if (isClientRender()) {
       }
 
       this.props.initializePlayback()
+      if (customDecode) {
+        initialState = customDecode(initialState)
+        finalState = customDecode(finalState)
+      }
       overloadStore(initialState)
 
       const performNextAction = () => {
@@ -99,7 +105,10 @@ if (isClientRender()) {
           let storeState = this.props.storeState
           let keys = Object.keys(storeState)
           keys.forEach(function (key) {
-            if (!isEqual(storeState[key], finalState[key])) {
+            if (
+              (!isEqual(storeState[key], finalState[key])) &&
+              // In case reducer is an immutableJS object, call toJSON on it.
+              !(storeState[key].toJSON && finalState[key].toJSON && isEqual(storeState[key].toJSON(), finalState[key].toJSON()))) {
               console.log('The following reducer does not strictly equal the bug report final state: ' + key + '. I\'ll print them both out so you can see the differences.')
               console.log(key + ' current state:', storeState[key], '\n' + key + ' bug report state:', finalState[key])
             }
@@ -113,7 +122,7 @@ if (isClientRender()) {
 
     submit: function (e) {
       e.preventDefault()
-      const {submit, projectName, storeState, redactStoreState, meta, stringifyPayload} = this.props
+      const {submit, projectName, storeState, redactStoreState, meta, stringifyPayload, customEncode} = this.props
       let {reporter, description, screenshotURL, notes} = this.state
       this.setState({loading: true})
 
@@ -123,6 +132,11 @@ if (isClientRender()) {
       if (redactStoreState) {
         initialState = redactStoreState(initialState)
         state = redactStoreState(state)
+      }
+
+      if (customEncode) {
+        state = customEncode(state)
+        initialState = customEncode(initialState)
       }
       const newBug = {
         projectName,

@@ -148,6 +148,8 @@ The delay parameter is the amount of time (in ms) between actions during playbac
 |name             |String                      |         |*optional* If the application knows the name of the user, this can be used to prepopulate the submission form|
 |meta             |Any                         |         |*optional* If `meta` exists, it will be passed along on bug submission|
 |stringifyPayload |Boolean                     |false    | If true, the redux states and actions will be stringified using `JSON.stringify` before bug submission. This is particularly useful for posting bugs to a google sheet using [Sheetsu](http://sheetsu.com)|
+|customEncode     |Function                    |         | *optional* A function that receives the state and returns a new encoded state before bug submission (useful for [serializing immutable objects](#working-with-immutablejs-or-similar-libraries))|
+|customDecode     |Function                    |         | *optional* A function that receives the state and returns a new decoded state before bug playback (useful for [deserializing immutable objects](#working-with-immutablejs-or-similar-libraries))|
 
 ## Redacting Sensitive Data
 Since Redux Bug Reporter logs all redux state and actions, there could easily be sensitive information in submitted bugs. There are two ways to redact information before submission.
@@ -193,6 +195,34 @@ let action {
     }
 }
 // Redacted action is { type: 'CUSTOM_REDACTION_ACTION', nonSensitiveField: 'Foo Bar', meta: { unrelatedMeta: true } }
+```
+
+## Working with ImmutableJS or similar libraries
+To file and replay bugs, redux-bug-reporter needs to submit redux state as a JSON object and receive redux state as a JSON object. If all or part of your redux store is using a library such as [immutable](https://github.com/facebook/immutable-js), you will need to pass in the `customEncode` and `customDecode` properties to `<ReduxBugReporter>`.
+```js
+/* Assume your redux state is of the form
+{
+    immutableState: IMMUTABLE_OBJECT,
+    normalMutableState: { foo: true }
+}
+*/
+import { fromJS } from 'immutable'
+const customEncode = (state) => {
+    return {
+        immutableState: state.immutableState.toJSON(),
+        mutableState: state.mutableState
+    }
+}
+
+const customDecode = (state) => {
+    return {
+        immutableState: fromJS(state.immutableState),
+        mutableState: state.mutableState
+    }
+}
+
+// Later, when rendering Redux Bug Reporter
+<ReduxBugReporter submit='http://localhost/path/to/post/bug/to' projectName='Test' customEncode={customEncode} customDecode={customDecode}/>
 ```
 
 ##Contributions

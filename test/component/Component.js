@@ -8,6 +8,7 @@ import { Provider } from 'react-redux'
 import { errorData } from '../../src/utils.js'
 import {storeEnhancer} from '../../src/index'
 import { createStore, applyMiddleware, compose } from 'redux'
+import { fromJS } from 'immutable'
 import thunk from 'redux-thunk'
 
 let clientRender = true
@@ -28,6 +29,17 @@ function reducer (state = [], action) {
 
 function configureStore (initialState) {
   return createStore(reducer, initialState, compose(storeEnhancer, applyMiddleware(thunk)))
+}
+
+function immutableReducer (state = fromJS([]), action) {
+  if (action) {
+    return state.push(action)
+  }
+  return state
+}
+
+function configureImmutableStore (initialState) {
+  return createStore(immutableReducer, initialState, compose(storeEnhancer, applyMiddleware(thunk)))
 }
 
 let ReduxBugReporter, UnconnectedBugReporter
@@ -83,6 +95,60 @@ describe('Redux Bug Reporter component tests', () => {
           />
         </Provider>
       )
+      let reduxBugReporter = wrapper.find(UnconnectedBugReporter)
+      let showHideButton = wrapper.find('.Redux-Bug-Reporter__show-hide-button')
+      assert.isOk(reduxBugReporter.find('.Redux-Bug-Reporter'), 'Redux Bug Reporter is rendered')
+      assert.isOk(reduxBugReporter.find('.Redux-Bug-Reporter__form').length === 0, 'Redux Bug Reporter is not initially expanded')
+      showHideButton.simulate('click')
+      assert.isOk(reduxBugReporter.find('.Redux-Bug-Reporter__form').length === 1, 'Redux Bug Reporter expands')
+      showHideButton.simulate('click')
+      assert.isOk(reduxBugReporter.find('.Redux-Bug-Reporter__form').length === 0, 'Redux Bug Reporter collapses')
+      showHideButton.simulate('click')
+      assert.isOk(reduxBugReporter.find('.Redux-Bug-Reporter__form').length === 1, 'Redux Bug Reporter expands')
+
+      // Edit the inputs
+      // TODO: Validate inputs
+      reduxBugReporter.find('.Redux-Bug-Reporter__form-input--reporter').simulate('change', { target: { value: 'Drew Schuster' } })
+
+      // Submit the bug
+      let form = wrapper.find('form')
+      form.prop('onSubmit')({ preventDefault: () => {} })
+      assert.isOk(reduxBugReporter.find('.Redux-Bug-Reporter__loading-container').length === 1, 'Redux Bug Reporter Loading')
+
+      // Bug submission complete
+      setTimeout(() => {
+        assert.isOk(reduxBugReporter.find('.Redux-Bug-Reporter__form--success').length === 1, 'Redux Bug Reporter Success displays')
+        assert.include(reduxBugReporter.find('.Redux-Bug-Reporter__form--success').html(), 'http://redux-bug-reporter.com/id/1', 'Link to bug displays')
+
+        let closeButton = reduxBugReporter.find('button')
+        closeButton.simulate('click')
+        assert.isOk(reduxBugReporter.find('.Redux-Bug-Reporter'), 'Redux Bug Reporter is rendered')
+        assert.isOk(reduxBugReporter.find('.Redux-Bug-Reporter__form').length === 0, 'Redux Bug Reporter is collapsed')
+        done()
+      }, 200)
+    })
+    it('customEncode and customDecode properties', (done) => {
+      nock('http://redux-bug-reporter.com').post('/').reply(200, {
+        bugURL: 'http://redux-bug-reporter.com/id/1'
+      })
+      const customEncode = (state) => {
+        return state.toJSON()
+      }
+      const customDecode = (state) => {
+        return fromJS(state)
+      }
+      let store = configureImmutableStore()
+      let wrapper = mount(
+        <Provider store={store}>
+          <ReduxBugReporter
+            projectName='foo'
+            submit='http://redux-bug-reporter.com'
+            customEncode={customEncode}
+            customDecode={customDecode}
+          />
+        </Provider>
+      )
+      store.dispatch({type: 'FOO'})
       let reduxBugReporter = wrapper.find(UnconnectedBugReporter)
       let showHideButton = wrapper.find('.Redux-Bug-Reporter__show-hide-button')
       assert.isOk(reduxBugReporter.find('.Redux-Bug-Reporter'), 'Redux Bug Reporter is rendered')

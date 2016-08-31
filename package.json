@@ -83,6 +83,7 @@
     "extract-text-webpack-plugin": "^1.0.1",
     "gh-pages": "^0.11.0",
     "ghooks": "^1.0.3",
+    "immutable": "^3.8.1",
     "isparta": "^4.0.0",
     "jsdom": "~5.4.3",
     "less": "^2.7.1",
