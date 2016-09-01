@@ -12,7 +12,7 @@ require('isomorphic-fetch')
 
 // On the server, UnconnectedBugReporter is a placeholder component
 let UnconnectedBugReporter = () => {
-  return (<span/>)
+  return (<span />)
 }
 
 if (isClientRender()) {
@@ -224,7 +224,7 @@ if (isClientRender()) {
               )}
             </div>
             <div className='Redux-Bug-Reporter__show-hide-container'>
-              <button className={`Redux-Bug-Reporter__show-hide-button Redux-Bug-Reporter__show-hide-button--${error ? 'expanded' : 'collapsed'}`} onClick={this.dismiss}/>
+              <button className={`Redux-Bug-Reporter__show-hide-button Redux-Bug-Reporter__show-hide-button--${error ? 'expanded' : 'collapsed'}`} onClick={this.dismiss} />
             </div>
           </div>
         )
@@ -235,16 +235,16 @@ if (isClientRender()) {
           {expanded && (
             <div className='Redux-Bug-Reporter__form'>
               <form onSubmit={this.submit}>
-                <input className='Redux-Bug-Reporter__form-input Redux-Bug-Reporter__form-input--reporter' onChange={this.handleChange('reporter')} value={reporter} placeholder='Name'/>
-                <input className='Redux-Bug-Reporter__form-input Redux-Bug-Reporter__form-input--description' onChange={this.handleChange('description')} value={description} placeholder='Description'/>
-                <input className='Redux-Bug-Reporter__form-input Redux-Bug-Reporter__form-input--screenshotURL' onChange={this.handleChange('screenshotURL')} value={screenshotURL} placeholder='Screenshot URL'/>
-                <textarea className='Redux-Bug-Reporter__form-input Redux-Bug-Reporter__form-input--notes' onChange={this.handleChange('notes')} value={notes} placeholder='Notes'/>
+                <input className='Redux-Bug-Reporter__form-input Redux-Bug-Reporter__form-input--reporter' onChange={this.handleChange('reporter')} value={reporter} placeholder='Name' />
+                <input className='Redux-Bug-Reporter__form-input Redux-Bug-Reporter__form-input--description' onChange={this.handleChange('description')} value={description} placeholder='Description' />
+                <input className='Redux-Bug-Reporter__form-input Redux-Bug-Reporter__form-input--screenshotURL' onChange={this.handleChange('screenshotURL')} value={screenshotURL} placeholder='Screenshot URL' />
+                <textarea className='Redux-Bug-Reporter__form-input Redux-Bug-Reporter__form-input--notes' onChange={this.handleChange('notes')} value={notes} placeholder='Notes' />
                 <button className='Redux-Bug-Reporter__submit-button' type='submit'>File Bug</button>
               </form>
             </div>
           )}
           <div className='Redux-Bug-Reporter__show-hide-container'>
-            <button className={`Redux-Bug-Reporter__show-hide-button Redux-Bug-Reporter__show-hide-button--${this.state.expanded ? 'expanded' : 'collapsed'}`} onClick={this.toggleExpanded}/>
+            <button className={`Redux-Bug-Reporter__show-hide-button Redux-Bug-Reporter__show-hide-button--${this.state.expanded ? 'expanded' : 'collapsed'}`} onClick={this.toggleExpanded} />
           </div>
         </div>
       )
@@ -253,11 +253,11 @@ if (isClientRender()) {
 }
 
 const loadingLayout = (
-    <div className='Redux-Bug-Reporter'>
-      <div className='Redux-Bug-Reporter__loading-container'>
-        <span className='Redux-Bug-Reporter__loading'/>
-      </div>
+  <div className='Redux-Bug-Reporter'>
+    <div className='Redux-Bug-Reporter__loading-container'>
+      <span className='Redux-Bug-Reporter__loading' />
     </div>
+  </div>
 )
 
 const mapStateToProps = (store) => {

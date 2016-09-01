@@ -1,14 +1,15 @@
+var path = require('path')
 var webpack = require('webpack')
 var ExtractTextPlugin = require('extract-text-webpack-plugin')
 var autoprefixer = require('autoprefixer')
 
 var config = {
   entry: [
-    __dirname + '/src/redux-bug-reporter.less',
-    __dirname + '/src/index.js'
+    path.join(__dirname, 'src', 'redux-bug-reporter.less'),
+    path.join(__dirname, 'src', 'index.js')
   ],
   output: {
-    path: __dirname + '/dist',
+    path: path.join(__dirname, 'dist'),
     filename: 'redux-bug-reporter.js',
     library: 'ReduxBugReporter',
     libraryTarget: 'umd'
