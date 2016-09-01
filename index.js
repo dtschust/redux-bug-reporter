@@ -4,6 +4,7 @@ import { Provider, connect } from 'react-redux'
 import ReduxBugReporter from '../src/index'
 import '../src/redux-bug-reporter.less'
 import './index.less'
+import { fromJS } from 'immutable'
 
 import App from './todomvc/containers/App'
 import configureStore from './todomvc/store/configureStore'
@@ -41,6 +42,10 @@ const submitFn = (newBug) => {
   })
 }
 
+const customDecode = (state) => {
+  return { ...state, input: fromJS(state.input) }
+}
+
 const Root = function () {
   return (
     <Provider store={store}>
@@ -54,10 +59,10 @@ const Root = function () {
           text area is a fork of redux's todomvc example, with redux-bug-reporter
           wiring. Changes to the todo list will also be logged with redux-bug-reporter.
         </div>
-        <ConnectedInput/>
-        <ConnectedListener/>
+        <ConnectedInput />
+        <ConnectedListener />
         <App />
-        <ReduxBugReporter submit={submitFn} projectName='example' stringifyPayload/>
+        <ReduxBugReporter submit={submitFn} projectName='example' stringifyPayload customDecode={customDecode} />
       </div>
     </Provider>
   )
@@ -75,14 +80,14 @@ const Input = React.createClass({
   render: function () {
     return (
       <div className='example__input'>
-        <textarea rows='10' cols='50' value={this.props.value} onChange={this.handleChange}/>
+        <textarea rows='10' cols='50' value={this.props.value} onChange={this.handleChange} />
       </div>
     )
   }
 })
 
 const mapInputStateToProps = function ({ input }) {
-  return { value: input.value }
+  return { value: input.toJS().value }
 }
 
 const ConnectedInput = connect(mapInputStateToProps)(Input)
@@ -107,10 +112,10 @@ const Listener = React.createClass({
 })
 
 const mapListenerStateToProps = function ({ input }) {
-  let { value, numChanges } = input
+  let { value, numChanges } = input.toJS()
   return { value, numChanges }
 }
 
 const ConnectedListener = connect(mapListenerStateToProps)(Listener)
 
-ReactDOM.render(<Root/>, document.getElementById('root'))
+ReactDOM.render(<Root />, document.getElementById('root'))

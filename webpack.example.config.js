@@ -1,3 +1,4 @@
+var path = require('path')
 var webpack = require('webpack')
 var autoprefixer = require('autoprefixer')
 
@@ -5,7 +6,7 @@ var config = {
   devtool: 'eval',
   entry: [
     'babel-polyfill',
-    __dirname + '/index.js'
+    path.join(__dirname, 'index.js')
   ],
   output: {
     path: __dirname,
