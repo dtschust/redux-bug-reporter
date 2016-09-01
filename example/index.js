@@ -59,10 +59,10 @@ const Root = function () {
           text area is a fork of redux's todomvc example, with redux-bug-reporter
           wiring. Changes to the todo list will also be logged with redux-bug-reporter.
         </div>
-        <ConnectedInput/>
-        <ConnectedListener/>
+        <ConnectedInput />
+        <ConnectedListener />
         <App />
-        <ReduxBugReporter submit={submitFn} projectName='example' stringifyPayload customDecode={customDecode}/>
+        <ReduxBugReporter submit={submitFn} projectName='example' stringifyPayload customDecode={customDecode} />
       </div>
     </Provider>
   )
@@ -80,7 +80,7 @@ const Input = React.createClass({
   render: function () {
     return (
       <div className='example__input'>
-        <textarea rows='10' cols='50' value={this.props.value} onChange={this.handleChange}/>
+        <textarea rows='10' cols='50' value={this.props.value} onChange={this.handleChange} />
       </div>
     )
   }
@@ -118,4 +118,4 @@ const mapListenerStateToProps = function ({ input }) {
 
 const ConnectedListener = connect(mapListenerStateToProps)(Listener)
 
-ReactDOM.render(<Root/>, document.getElementById('root'))
+ReactDOM.render(<Root />, document.getElementById('root'))
