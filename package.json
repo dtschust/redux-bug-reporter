@@ -17,7 +17,7 @@
     "start-static": "npm run build:example && cd example && live-server",
     "test": "standard && mocha --compilers js:babel-register --recursive --require test/setup.js",
     "test:watch": "npm test -- --watch",
-    "test:cov": "babel-node $(npm bin)/isparta cover _mocha -- --recursive --require test/setup.js"
+    "test:cov": "babel-node ./node_modules/.bin/isparta cover _mocha -- --recursive --require test/setup.js"
   },
   "repository": {
     "type": "git",
