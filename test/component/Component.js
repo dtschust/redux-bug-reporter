@@ -195,6 +195,9 @@ describe('Redux Bug Reporter component tests', () => {
           },
           body: JSON.stringify(newBug)
         }).then(function (response) {
+          if (!response.ok) {
+            throw Error(response.statusText)
+          }
           return response.json()
         })
       }
@@ -321,3 +324,4 @@ describe('Redux Bug Reporter component tests', () => {
 // TODO: Somehow test not mounted
 // TODO: Props to test: name, projectName
 // TODO: Verify that real network requests aren't made during playback
+// TODO: Test meta
