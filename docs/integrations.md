@@ -3,10 +3,10 @@
 `redux-bug-reporter` comes with several built-in integrations to popular bug trackers, and easily supports custom integrations. Most integrations export a `createSubmit` function, which is passed a `config` and returns a `submitFn`. Current integrations supported are:
 * **[Default](#default)**: `POST` to passed in submission URL
 * **[Console logging](#console)**
-* **[Github issues](#github-issues)**
-* **[Jira](#jira)**
 * **[Sheetsu](#sheetsu)** (Google sheets)
 * **[Asana](#asana)**
+* **[Github issues](#github-issues)**
+* **[Jira](#jira)**
 * **[Custom Integrations](#custom-integrations)**
 
 ## Default
