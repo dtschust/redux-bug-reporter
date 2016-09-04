@@ -229,3 +229,5 @@ const customDecode = (state) => {
 ## License
 
 MIT
+
+[![Analytics](https://ga-beacon.appspot.com/UA-83674100-2/welcome-page?pixel)](https://github.com/igrigorik/ga-beacon)
