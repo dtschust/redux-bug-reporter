@@ -7,7 +7,7 @@
 Authors: [Drew Schuster](https://github.com/dtschust) & [Greg Mathews](https://github.com/gregsqueeb)
 
 [![npm version](https://img.shields.io/npm/v/redux-bug-reporter.svg)](https://www.npmjs.com/package/redux-bug-reporter)
-[![npm downloads](https://img.shields.io/npm/dm/redux-bug-reporter.svg.svg)](https://www.npmjs.com/package/redux-bug-reporter)
+[![npm downloads](https://img.shields.io/npm/dm/redux-bug-reporter.svg)](https://www.npmjs.com/package/redux-bug-reporter)
 [![build](https://travis-ci.org/dtschust/redux-bug-reporter.svg?branch=master)](https://travis-ci.org/dtschust/redux-bug-reporter)
 [![coverage](https://img.shields.io/codecov/c/github/dtschust/redux-bug-reporter.svg)](https://codecov.io/gh/dtschust/redux-bug-reporter)
 [![license](https://img.shields.io/github/license/dtschust/redux-bug-reporter.svg?maxAge=2592000)](/LICENSE.md)
