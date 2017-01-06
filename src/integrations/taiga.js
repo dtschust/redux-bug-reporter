@@ -17,7 +17,7 @@ const createSubmit = ({url, token, project_id, subject}) => {
       })
     }).then(function (response) {
       if (!response.ok) {
-        throw Error(response.statusText);
+        throw Error(response.statusText)
       }
       return response.json()
     })
