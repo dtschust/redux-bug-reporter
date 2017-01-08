@@ -1,3 +1,6 @@
+## 1.1.0 (January 8, 2017)
+* Added Taiga integration. Thanks @matthewbdaly !
+
 ## 1.0.0 (September 3, 2016)
 * Upgrade `standard` version for linting
 * Cleanup test coverage script, still does not work in Windows
