@@ -7,6 +7,7 @@
 * **[Asana](#asana)**
 * **[Github issues](#github-issues)**
 * **[Jira](#jira)**
+* **[Taiga](#taiga)**
 * **[Custom Integrations](#custom-integrations)**
 
 ## Default
@@ -74,6 +75,20 @@ Unfortunately, it is not possible to create bugs in Jira through a web browser d
 import createSubmit from 'redux-bug-reporter/lib/integrations/jira'
 const submitFn = createSubmit({
     url: 'http://server-running-jira-issue-filer.biz'
+})
+// Later, when rendering redux-bug-reporter
+<ReduxBugReporter submit={submitFn} projectName='example' />
+```
+
+## Taiga
+<div><img src="https://raw.githubusercontent.com/dtschust/redux-bug-reporter/master/.github/taiga.png" width="600"/></div>
+### 🚨Warning: This integration requires passing in a Taiga `token`. Be careful with this token, and store it as an env variable and not in code. If `redux-bug-reporter` is only being used in a development environment, make sure your build process removes the access token as dead code before deploying to production. If you wish to use `redux-bug-reporter` in production, you will need to deploy a server that stores the Taiga token as an environment variable, and posts to `https://api.taiga.io/api/v1/issues` on your behalf. Fork the integration in `src/integrations/taiga.js` and alter the POST to go to your custom server. If this is a pain point for you, please create an issue and I'll consider writing a server implementation🚨
+The Taiga integration creates issues. A `token` and `project_id` must be provided.
+```js
+import createSubmit from 'redux-bug-reporter/lib/integrations/taiga'
+const submitFn = createSubmit({
+    project_id: 1234,
+    token: 'TOKEN_STORED_IN_ENV_VARIABLE'
 })
 // Later, when rendering redux-bug-reporter
 <ReduxBugReporter submit={submitFn} projectName='example' />

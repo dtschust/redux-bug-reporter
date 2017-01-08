@@ -30,7 +30,7 @@ Authors: [Drew Schuster](https://github.com/dtschust) & [Greg Mathews](https://g
     * Extra properties passed in as `meta` to the Redux Bug Reporter component are filed alongside the bug
     * Submit property can either be a URL or a custom function that returns a promise. This should allow Redux Bug Reporter to work in any development environment
 * **Integration With Bug Trackers**
-    * Ships with integration for Jira, GitHub Issues, Asana, and Google Sheets (via Sheetsu)
+    * Ships with integration for Jira, GitHub Issues, Asana, Taiga, and Google Sheets (via Sheetsu)
     * Easy to write custom integration with other bug trackers
     * [Integration Documentation](/docs/integrations.md)
 
