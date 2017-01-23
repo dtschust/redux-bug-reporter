@@ -1,7 +1,7 @@
 /* global fetch */
 require('isomorphic-fetch')
 
-const createSubmit = ({url}) => {
+const createSubmit = ({url, fetchProps}) => {
   return (newBug) => {
     return fetch(url, {
       method: 'post',
@@ -9,7 +9,8 @@ const createSubmit = ({url}) => {
         'Accept': 'application/json',
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify(newBug)
+      body: JSON.stringify(newBug),
+      ...fetchProps
     }).then(function (response) {
       if (!response.ok) {
         throw Error(response.statusText)
