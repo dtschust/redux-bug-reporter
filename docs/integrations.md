@@ -12,10 +12,10 @@
 
 ## Default
 <div><img src="https://raw.githubusercontent.com/dtschust/redux-bug-reporter/master/.github/default.png" width="800"/></div>
-The default integration is a simple `POST` to a provided URL. This integration is good for any server built to handle `redux-bug-reporter` POSTs.
+The default integration is a simple `POST` to a provided URL. This integration is good for any server built to handle `redux-bug-reporter` POSTs. If you want to modify any properties of the fetch call, you can additionally pass `fetchProps` to define custom headers, change the cache settings, etc.
 ```js
 import createSubmit from 'redux-bug-reporter/lib/integrations/default'
-let submitFn = createSubmit({ url: 'http://server-to-post-to.biz' })
+let submitFn = createSubmit({ url: 'http://server-to-post-to.biz', fetchProps: { /* Override default fetch properties here */ } })
 
 // Later, when rendering redux-bug-reporter
 <ReduxBugReporter submit={submitFn} projectName='example' />
