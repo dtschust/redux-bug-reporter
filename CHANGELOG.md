@@ -1,3 +1,6 @@
+## 1.2.0 (January 22, 2017)
+* Added support for custom fetch configs with the default integration, using the property `fetchProps`.
+
 ## 1.1.0 (January 8, 2017)
 * Added Taiga integration. Thanks @matthewbdaly !
 
