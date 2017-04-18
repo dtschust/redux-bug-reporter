@@ -217,7 +217,7 @@ const customDecode = (state) => {
 <ReduxBugReporter submit='http://localhost/path/to/post/bug/to' projectName='Test' customEncode={customEncode} customDecode={customDecode}/>
 ```
 
-##Contributions
+## Contributions
 - Fork the project
 - Make changes
 - Double check changes work by adding it to the examples
