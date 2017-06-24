@@ -12,7 +12,7 @@
     "clean": "rimraf lib dist coverage example/bundle.js",
     "lint": "eslint --ext='js,jsx' src",
     "prettier": "prettier --no-semi --single-quote --trailing-comma all --write 'src/**/*.js'",
-    "prepublish": "npm run clean && npm run build",
+    "zzzprepublish": "npm run clean && npm run build",
     "publish-gh-pages": "npm run prepublish && ./scripts/publish-gh-pages.js",
     "start": "cross-env NODE_ENV=development webpack-dev-server --hot --inline --progress --colors --config example/webpack.example.config.js",
     "start-static": "npm run build:example && cd example && live-server",
@@ -60,6 +60,7 @@
   },
   "devDependencies": {
     "autoprefixer": "^6.3.6",
+    "babel-cli": "^6.24.1",
     "babel-core": "^6.25.0",
     "babel-loader": "^7.1.0",
     "babel-plugin-react-transform": "^2.0.2",

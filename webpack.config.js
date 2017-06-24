@@ -32,14 +32,19 @@ var config = {
     new ExtractTextPlugin('redux-bug-reporter.css')
   ],
   module: {
-    rules: [{
-      test: /\.jsx?/,
-      loader: 'babel-loader',
-      exclude: /node_modules/
-    }, {
-      test: /\.less$/,
-      loader: ExtractTextPlugin.extract('style-loader', 'css-loader!postcss-loader!less-loader')
-    }]
+    rules: [
+      {
+        test: /\.jsx?/,
+        use: 'babel-loader',
+        exclude: /node_modules/
+      }, {
+        test: /\.less$/,
+        use: ExtractTextPlugin.extract({
+          fallback: 'style-loader',
+          use: ['css-loader', 'postcss-loader', 'less-loader' ]
+        })
+      }
+    ]
   },
   resolve: {
     extensions: ['.jsx', '.js', '.less']

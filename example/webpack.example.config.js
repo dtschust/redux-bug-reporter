@@ -1,6 +1,5 @@
 var path = require('path')
 var webpack = require('webpack')
-var autoprefixer = require('autoprefixer')
 
 var config = {
   devtool: 'eval',
@@ -17,40 +16,39 @@ var config = {
     new webpack.NoErrorsPlugin()
   ],
   module: {
-    loaders: [
+    rules: [
       {
         test: /\.jsx?/,
-        loader: 'babel',
-        exclude: /node_modules/,
-        query: {
-          'env': {
-            'development': {
-              'plugins': [['react-transform', {
-                'transforms': [{
-                  'transform': 'react-transform-hmr',
-                  'imports': ['react'],
-                  'locals': ['module']
-                }]
-              }]]
+        use: {
+          loader: 'babel-loader',
+          options: {
+            'env': {
+              'development': {
+                'plugins': [['react-transform', {
+                  'transforms': [{
+                    'transform': 'react-transform-hmr',
+                    'imports': ['react'],
+                    'locals': ['module']
+                  }]
+                }]]
+              }
             }
-          }
-        }
+          },
+        },
+        exclude: /node_modules/,
       },
       {
         test: /\.less$/,
-        loader: 'style!css!postcss!less'
+        use: [ 'style-loader', 'css-loader', 'postcss-loader', 'less-loader' ]
       },
       {
         test: /\.css$/,
-        loader: 'style!css!postcss'
+        use: [ 'style-loader', 'css-loader', 'postcss-loader' ]
       }
     ]
   },
   resolve: {
-    extensions: ['', '.jsx', '.js', '.json', '.less']
-  },
-  postcss: function () {
-    return [autoprefixer]
+    extensions: ['.jsx', '.js', '.json', '.less']
   },
   devServer: {
     port: 3000,
