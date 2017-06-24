@@ -1,7 +1,6 @@
 var path = require('path')
 var webpack = require('webpack')
 var ExtractTextPlugin = require('extract-text-webpack-plugin')
-var autoprefixer = require('autoprefixer')
 
 var config = {
   entry: [
@@ -33,20 +32,17 @@ var config = {
     new ExtractTextPlugin('redux-bug-reporter.css')
   ],
   module: {
-    loaders: [{
+    rules: [{
       test: /\.jsx?/,
-      loader: 'babel',
+      loader: 'babel-loader',
       exclude: /node_modules/
     }, {
       test: /\.less$/,
-      loader: ExtractTextPlugin.extract('style', 'css!postcss!less')
+      loader: ExtractTextPlugin.extract('style-loader', 'css-loader!postcss-loader!less-loader')
     }]
   },
-  postcss: function () {
-    return [autoprefixer]
-  },
   resolve: {
-    extensions: ['', '.jsx', '.js', '.less']
+    extensions: ['.jsx', '.js', '.less']
   }
 }
 
