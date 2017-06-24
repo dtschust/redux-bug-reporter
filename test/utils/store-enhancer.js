@@ -1,8 +1,8 @@
 /* eslint-env mocha */
-import storeEnhancer, {overloadStore, initializePlayback, finishPlayback, playbackFlag, middlewareData} from '../../src/store-enhancer'
 import { createStore, applyMiddleware, compose } from 'redux'
 import thunk from 'redux-thunk'
-import { assert } from 'chai'
+
+import storeEnhancer, {overloadStore, initializePlayback, finishPlayback, playbackFlag, middlewareData} from '../../src/store-enhancer'
 
 function reducer (state = [], action) {
   if (action) {
@@ -17,8 +17,7 @@ function configureStore (initialState) {
 
 describe('Store Enhancer tests', () => {
   it('bug playback functionality', () => {
-    let store = configureStore()
-    assert.isOk(true, 'here are some more tests')
+    const store = configureStore()
     let expected = [
       { type: '@@redux/INIT' }
     ]
@@ -26,7 +25,8 @@ describe('Store Enhancer tests', () => {
     store.dispatch({ type: '1' })
     store.dispatch({ type: '2' })
     store.dispatch({ type: '3' })
-    assert.deepEqual(store.getState(), expected, 'Normal action dispatch')
+
+    expect(store.getState()).toEqual(expected);
 
     // Initialize playback
     store.dispatch(initializePlayback())
@@ -36,30 +36,34 @@ describe('Store Enhancer tests', () => {
     store.dispatch({ type: 'Fake action that should be ignored' })
     store.dispatch(overloadStore(expected))
     store.dispatch({ type: 'Fake action that should be ignored' })
-    assert.deepEqual(store.getState(), expected, 'Overload Store action')
+
+    expect(store.getState()).toEqual(expected);
 
     // Dispatch a replay action and a fake action
     store.dispatch({ type: 'Fake action that should be ignored' })
     store.dispatch({ type: 'D', [playbackFlag]: true })
     expected.push({ type: 'D' })
-    assert.deepEqual(store.getState(), expected, 'Only honors replayed actions')
+
+    expect(store.getState()).toEqual(expected);
 
     // Finish playback, verify that actions can be dispatched as normal
     store.dispatch(finishPlayback())
     store.dispatch({ type: 'E' })
     expected.push({ type: 'E' })
-    assert.deepEqual(store.getState(), expected, 'Finish playback')
+
+    expect(store.getState()).toEqual(expected);
   })
   it('middleware functionality', () => {
-    let initialState = [ {type: 'INITIAL_STATE'} ]
-    let store = configureStore(initialState)
+    const initialState = [ {type: 'INITIAL_STATE'} ]
+    const store = configureStore(initialState)
     initialState.push({ type: '@@redux/INIT' })
-    let expected = [{ type: '1' }, { type: '2' }, { type: '3' }]
+    const expected = [{ type: '1' }, { type: '2' }, { type: '3' }]
     store.dispatch({ type: '1' })
     store.dispatch({ type: '2' })
     store.dispatch({ type: '3' })
-    assert.deepEqual(middlewareData.getBugReporterInitialState(), initialState, 'Initial state is stored')
-    assert.deepEqual(middlewareData.getActions(), expected, 'Normal actions are caught')
+
+    expect(middlewareData.getBugReporterInitialState()).toEqual(initialState)
+    expect(middlewareData.getActions()).toEqual(expected)
 
     // Test simple redaction
     store.dispatch({
@@ -70,7 +74,7 @@ describe('Store Enhancer tests', () => {
       }
     })
     expected.push({ type: 'redaction A' })
-    assert.deepEqual(middlewareData.getActions(), expected, 'Redacted action is redacted')
+    expect(middlewareData.getActions()).toEqual(expected)
 
     // Test custom redaction
     store.dispatch({
@@ -79,13 +83,13 @@ describe('Store Enhancer tests', () => {
       meta: {
         unrelatedMeta: 'foo',
         redactFromBugReporter: true,
-        redactFromBugReporterFn: function (action) {
+        redactFromBugReporterFn (action) {
           return {...action, name: '▮▮▮▮ ▮▮▮▮▮'}
         }
       }
     })
     expected.push({ type: 'redaction A', name: '▮▮▮▮ ▮▮▮▮▮', meta: { unrelatedMeta: 'foo' } })
-    assert.deepEqual(middlewareData.getActions(), expected, 'Redacted action is redacted')
+    expect(middlewareData.getActions()).toEqual(expected)
   })
 
   // TODO: Test thunked actions
