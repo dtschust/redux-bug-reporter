@@ -7,32 +7,34 @@ const finishPlaybackActionType = 'REDUX_BUG_REPORTER_FINISH_PLAYBACK'
 
 export const playbackFlag = 'REDUX_BUG_REPORTER_PLAYBACK'
 
-export const overloadStore = function (payload) {
+export const overloadStore = function(payload) {
   return {
     type: overloadStoreActionType,
-    payload
+    payload,
   }
 }
 
-export const initializePlayback = function () {
+export const initializePlayback = function() {
   return {
-    type: initializePlaybackActionType
+    type: initializePlaybackActionType,
   }
 }
 
-export const finishPlayback = function (payload) {
+export const finishPlayback = function(payload) {
   return {
-    type: finishPlaybackActionType
+    type: finishPlaybackActionType,
   }
 }
 let storeEnhancer = f => f
 if (isClientRender()) {
-  storeEnhancer = (createStore) => (originalReducer, initialState, enhancer) => {
+  storeEnhancer = createStore => (originalReducer, initialState, enhancer) => {
     let playbackEnabled = false
     // Handle the overloading in the reducer here
-    let reducer = function (state, action = {}) {
+    let reducer = function(state, action = {}) {
       if (action.type === overloadStoreActionType) {
-        console.warn('Overriding the store. You should only be doing this if you are using the bug reporter')
+        console.warn(
+          'Overriding the store. You should only be doing this if you are using the bug reporter',
+        )
         return action.payload
       } else if (action.type === initializePlaybackActionType) {
         // starting playback
@@ -64,7 +66,7 @@ if (isClientRender()) {
             delete redactedAction.meta.redactFromBugReporterFn
           } else {
             // if there's no redactFromBugReporterFn, remove everything except the event type
-            redactedAction = {type: redactedAction.type}
+            redactedAction = { type: redactedAction.type }
           }
           middlewareData.addAction(redactedAction)
         } else {
@@ -85,10 +87,14 @@ if (isClientRender()) {
     middlewareData.setBugReporterInitialState({})
 
     // wrap around dispatch disable all non-playback actions during playback
-    let dispatch = function (action) {
+    let dispatch = function(action) {
       // Allow overload and finishPlayback actions
-      if (action && action.type &&
-        (action.type === overloadStoreActionType || action.type === finishPlaybackActionType)) {
+      if (
+        action &&
+        action.type &&
+        (action.type === overloadStoreActionType ||
+          action.type === finishPlaybackActionType)
+      ) {
         return origDispatch(...arguments)
       }
       if (playbackEnabled && !action[playbackFlag]) {
@@ -100,7 +106,7 @@ if (isClientRender()) {
 
     return {
       ...store,
-      dispatch
+      dispatch,
     }
   }
 }
@@ -108,21 +114,21 @@ if (isClientRender()) {
 export let middlewareData = {
   actions: [],
   bugReporterInitialState: {},
-  addAction: function (action) {
+  addAction: function(action) {
     this.actions.push(action)
   },
-  clearActions: function () {
+  clearActions: function() {
     this.actions = []
   },
-  getActions: function () {
+  getActions: function() {
     return this.actions
   },
-  setBugReporterInitialState: function (state) {
+  setBugReporterInitialState: function(state) {
     this.bugReporterInitialState = state
   },
-  getBugReporterInitialState: function () {
+  getBugReporterInitialState: function() {
     return this.bugReporterInitialState
-  }
+  },
 }
 
 export default storeEnhancer

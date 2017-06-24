@@ -3,8 +3,21 @@ require('isomorphic-fetch')
 import parser from 'ua-parser-js'
 
 const createSubmit = ({ token, project_id, ...rest }) => {
-  return (newBug) => {
-    let {useragent, notes, description, screenshotURL, reporter, actions, initialState, state, consoleErrors, meta, windowDimensions, windowLocation} = newBug
+  return newBug => {
+    let {
+      useragent,
+      notes,
+      description,
+      screenshotURL,
+      reporter,
+      actions,
+      initialState,
+      state,
+      consoleErrors,
+      meta,
+      windowDimensions,
+      windowLocation,
+    } = newBug
     try {
       actions = JSON.stringify(actions)
       state = JSON.stringify(state)
@@ -39,17 +52,17 @@ window.bugReporterPlayback(${actions},${initialState},${state},100)
     return fetch('https://api.taiga.io/api/v1/issues', {
       method: 'post',
       headers: {
-        'Accept': 'application/json',
+        Accept: 'application/json',
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + token
+        Authorization: 'Bearer ' + token,
       },
       body: JSON.stringify({
         description: body,
         subject: title,
         project: project_id,
-        ...rest
-      })
-    }).then(function (response) {
+        ...rest,
+      }),
+    }).then(function(response) {
       if (!response.ok) {
         throw Error(response.statusText)
       }

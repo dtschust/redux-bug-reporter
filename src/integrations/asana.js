@@ -2,10 +2,23 @@
 require('isomorphic-fetch')
 import parser from 'ua-parser-js'
 
-const createSubmit = (config) => {
-  let {access_token, ...rest} = config
-  return (newBug) => {
-    let {useragent, notes, description, screenshotURL, reporter, actions, initialState, state, consoleErrors, meta, windowDimensions, windowLocation} = newBug
+const createSubmit = config => {
+  let { access_token, ...rest } = config
+  return newBug => {
+    let {
+      useragent,
+      notes,
+      description,
+      screenshotURL,
+      reporter,
+      actions,
+      initialState,
+      state,
+      consoleErrors,
+      meta,
+      windowDimensions,
+      windowLocation,
+    } = newBug
     try {
       actions = JSON.stringify(actions)
       state = JSON.stringify(state)
@@ -38,18 +51,18 @@ Bug submitted through https://github.com/dtschust/redux-bug-reporter
     return fetch('https://app.asana.com/api/1.0/tasks', {
       method: 'post',
       headers: {
-        'Accept': 'application/json',
-        'Authorization': 'Bearer ' + access_token, // eslint-disable-line camelcase
-        'Content-Type': 'application/json'
+        Accept: 'application/json',
+        Authorization: 'Bearer ' + access_token, // eslint-disable-line camelcase
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({
         data: {
           notes: body,
           name: title,
-          ...rest
-        }
-      })
-    }).then(function (response) {
+          ...rest,
+        },
+      }),
+    }).then(function(response) {
       if (!response.ok) {
         throw Error(response.statusText)
       }

@@ -2,9 +2,22 @@
 require('isomorphic-fetch')
 import parser from 'ua-parser-js'
 
-const createSubmit = ({github_owner, github_repo, access_token}) => {
-  return (newBug) => {
-    let {useragent, notes, description, screenshotURL, reporter, actions, initialState, state, consoleErrors, meta, windowDimensions, windowLocation} = newBug
+const createSubmit = ({ github_owner, github_repo, access_token }) => {
+  return newBug => {
+    let {
+      useragent,
+      notes,
+      description,
+      screenshotURL,
+      reporter,
+      actions,
+      initialState,
+      state,
+      consoleErrors,
+      meta,
+      windowDimensions,
+      windowLocation,
+    } = newBug
     try {
       actions = JSON.stringify(actions)
       state = JSON.stringify(state)
@@ -34,17 +47,26 @@ window.bugReporterPlayback(${actions},${initialState},${state},100)
 *Bug submitted through [redux-bug-reporter](https://github.com/dtschust/redux-bug-reporter)*
 `
 
-    return fetch('https://api.github.com/repos/' + github_owner + '/' + github_repo + '/issues?access_token=' + access_token, { // eslint-disable-line camelcase
-      method: 'POST',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
+    return fetch(
+      'https://api.github.com/repos/' +
+        github_owner +
+        '/' +
+        github_repo +
+        '/issues?access_token=' +
+        access_token,
+      {
+        // eslint-disable-line camelcase
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          title: title,
+          body: body,
+        }),
       },
-      body: JSON.stringify({
-        title: title,
-        body: body
-      })
-    })
+    )
   }
 }
 

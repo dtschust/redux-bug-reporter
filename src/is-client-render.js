@@ -1,3 +1,3 @@
-export default function () {
-  return (typeof window !== 'undefined')
+export default function() {
+  return typeof window !== 'undefined'
 }

@@ -1,8 +1,8 @@
 /* global fetch */
 require('isomorphic-fetch')
 
-const createSubmit = ({url}) => {
-  return (newBug) => {
+const createSubmit = ({ url }) => {
+  return newBug => {
     try {
       newBug.actions = JSON.stringify(newBug.actions)
       newBug.state = JSON.stringify(newBug.state)
@@ -17,14 +17,14 @@ const createSubmit = ({url}) => {
     return fetch(url, {
       method: 'post',
       headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({
         ...newBug,
-        playback
-      })
-    }).then(function (response) {
+        playback,
+      }),
+    }).then(function(response) {
       if (!response.ok) {
         throw Error(response.statusText)
       }
