@@ -25,7 +25,7 @@ const createSubmit = ({ url }) => newBug => {
       ...newBug,
       playback,
     }),
-  }).then((response) => {
+  }).then(response => {
     if (!response.ok) {
       throw Error(response.statusText)
     }

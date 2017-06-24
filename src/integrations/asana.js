@@ -55,7 +55,7 @@ Bug submitted through https://github.com/dtschust/redux-bug-reporter
       method: 'post',
       headers: {
         Accept: 'application/json',
-        Authorization: `Bearer ${  access_token}`, // eslint-disable-line camelcase
+        Authorization: `Bearer ${access_token}`, // eslint-disable-line camelcase
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
@@ -65,7 +65,7 @@ Bug submitted through https://github.com/dtschust/redux-bug-reporter
           ...rest,
         },
       }),
-    }).then((response) => {
+    }).then(response => {
       if (!response.ok) {
         throw Error(response.statusText)
       }

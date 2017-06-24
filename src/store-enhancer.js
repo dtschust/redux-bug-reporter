@@ -26,7 +26,6 @@ export function finishPlayback() {
   }
 }
 
-
 export const middlewareData = {
   actions: [],
   bugReporterInitialState: {},
@@ -47,9 +46,8 @@ export const middlewareData = {
   },
 }
 
-
 const noopStoreEnhancer = f => f
-let storeEnhancer;
+let storeEnhancer
 
 if (isClientRender()) {
   storeEnhancer = createStore => (originalReducer, initialState, enhancer) => {

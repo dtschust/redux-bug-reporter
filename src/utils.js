@@ -20,7 +20,7 @@ function listenToConsoleError() {
       let metadata
       if (args && args[0] && args[0].stack) {
         metadata = {
-          errorMsg: `${args[0].name  }: ${  args[0].message}`,
+          errorMsg: `${args[0].name}: ${args[0].message}`,
           stackTrace: args[0].stack,
         }
       } else {

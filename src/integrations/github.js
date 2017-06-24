@@ -3,7 +3,11 @@ import parser from 'ua-parser-js'
 
 require('isomorphic-fetch')
 
-const createSubmit = ({ github_owner, github_repo, access_token }) => newBug => {
+const createSubmit = ({
+  github_owner,
+  github_repo,
+  access_token,
+}) => newBug => {
   /* eslint-disable prefer-const */
   let {
     useragent,
@@ -50,12 +54,7 @@ window.bugReporterPlayback(${actions},${initialState},${state},100)
 `
   /* eslint-disable camelcase */
   return fetch(
-    `https://api.github.com/repos/${
-      github_owner
-      }/${
-      github_repo
-      }/issues?access_token=${
-      access_token}`,
+    `https://api.github.com/repos/${github_owner}/${github_repo}/issues?access_token=${access_token}`,
     {
       // eslint-disable-line camelcase
       method: 'POST',
