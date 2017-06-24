@@ -53,11 +53,6 @@
   "peerDependencies": {
     "react": ">=0.14.0"
   },
-  "config": {
-    "ghooks": {
-      "pre-push": "npm test"
-    }
-  },
   "devDependencies": {
     "autoprefixer": "^6.3.6",
     "babel-cli": "^6.24.1",
