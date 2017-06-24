@@ -13,12 +13,20 @@ import {
 import isClientRender from './is-client-render'
 import { listenToErrors, errorData } from './utils'
 import createSubmit from './integrations/default'
+
 require('es6-promise').polyfill()
 
+const loadingLayout = (
+  <div className="Redux-Bug-Reporter">
+    <div className="Redux-Bug-Reporter__loading-container">
+      <span className="Redux-Bug-Reporter__loading" />
+    </div>
+  </div>
+)
+
 // On the server, UnconnectedBugReporter is a placeholder component
-let UnconnectedBugReporter = () => {
-  return <span />
-}
+const NoopUnconnectedBugReporter = () => <span />
+let UnconnectedBugReporter
 
 if (isClientRender()) {
   UnconnectedBugReporter = React.createClass({
@@ -33,21 +41,20 @@ if (isClientRender()) {
       projectName: React.PropTypes.string.isRequired,
       redactStoreState: React.PropTypes.func,
       name: React.PropTypes.string,
-      meta: React.PropTypes.any,
+      meta: React.PropTypes.any, // eslint-disable-line react/forbid-prop-types
       customEncode: React.PropTypes.func,
       customDecode: React.PropTypes.func,
       // Passed in by redux-bug-reporter
       dispatch: React.PropTypes.func.isRequired,
-      storeState: React.PropTypes.any.isRequired,
+      storeState: React.PropTypes.any.isRequired, // eslint-disable-line react/forbid-prop-types
       overloadStore: React.PropTypes.func.isRequired,
       initializePlayback: React.PropTypes.func.isRequired,
       finishPlayback: React.PropTypes.func.isRequired,
     },
 
-    getInitialState: function() {
+    getInitialState() {
       return {
         expanded: false,
-        mounted: false,
         loading: false,
         bugFiled: false,
         reporter: this.props.name || '',
@@ -59,7 +66,7 @@ if (isClientRender()) {
       }
     },
 
-    shouldComponentUpdate: function(nextProps, nextState) {
+    shouldComponentUpdate(nextProps, nextState) {
       // Do not bother rerendering every props change.
       // Rerender only needs to occur on state change
       if (this.state !== nextState) {
@@ -68,24 +75,25 @@ if (isClientRender()) {
       return false
     },
 
-    componentDidMount: function() {
-      this.setState({ mounted: true })
+    componentDidMount() {
+      this.isMounted = true;
       listenToErrors()
       // Global function to play back a bug
       window.bugReporterPlayback = this.bugReporterPlayback
     },
 
-    toggleExpanded: function() {
+    toggleExpanded() {
       this.setState({ expanded: !this.state.expanded })
     },
 
-    bugReporterPlayback: function(
+    bugReporterPlayback(
       actions,
       initialState,
       finalState,
       delay = 100,
     ) {
-      let { dispatch, overloadStore, customDecode } = this.props
+      // eslint-disable-next-line no-shadow
+      const { dispatch, overloadStore, customDecode } = this.props
       if (delay === -1) {
         // Do not playback, just jump to the final state
         overloadStore(finalState)
@@ -94,13 +102,15 @@ if (isClientRender()) {
 
       this.props.initializePlayback()
       if (customDecode) {
+        /* eslint-disable no-param-reassign */
         initialState = customDecode(initialState)
         finalState = customDecode(finalState)
+        /* eslint-enable no-param-reassign */
       }
       overloadStore(initialState)
 
       const performNextAction = () => {
-        let action = actions[0]
+        const action = actions[0]
 
         // Let store know this is a playback action
         action[playbackFlag] = true
@@ -111,9 +121,9 @@ if (isClientRender()) {
           setTimeout(performNextAction, delay)
         } else {
           this.props.finishPlayback()
-          let storeState = this.props.storeState
-          let keys = Object.keys(storeState)
-          keys.forEach(function(key) {
+          const storeState = this.props.storeState
+          const keys = Object.keys(storeState)
+          keys.forEach((key) => {
             if (
               !isEqual(storeState[key], finalState[key]) &&
               // In case reducer is an immutableJS object, call toJSON on it.
@@ -124,14 +134,14 @@ if (isClientRender()) {
               )
             ) {
               console.log(
-                'The following reducer does not strictly equal the bug report final state: ' +
-                  key +
-                  ". I'll print them both out so you can see the differences.",
+                `The following reducer does not strictly equal the bug report final state: ${
+                  key
+                  }. I'll print them both out so you can see the differences.`,
               )
               console.log(
-                key + ' current state:',
+                `${key  } current state:`,
                 storeState[key],
-                '\n' + key + ' bug report state:',
+                `\n${  key  } bug report state:`,
                 finalState[key],
               )
             }
@@ -143,7 +153,7 @@ if (isClientRender()) {
       performNextAction()
     },
 
-    submit: function(e) {
+    submit(e) {
       e.preventDefault()
       const {
         submit,
@@ -153,7 +163,7 @@ if (isClientRender()) {
         meta,
         customEncode,
       } = this.props
-      let { reporter, description, screenshotURL, notes } = this.state
+      const { reporter, description, screenshotURL, notes } = this.state
       this.setState({ loading: true })
 
       let state = storeState
@@ -189,13 +199,13 @@ if (isClientRender()) {
       if (isFunction(submit)) {
         promise = submit(newBug)
       } else {
-        let submitFn = createSubmit({ url: submit })
+        const submitFn = createSubmit({ url: submit })
         promise = submitFn(newBug)
       }
 
       promise
         .then((json = {}) => {
-          let { bugURL } = json
+          const { bugURL } = json
           this.setState({
             loading: false,
             bugFiled: true,
@@ -214,31 +224,30 @@ if (isClientRender()) {
         })
     },
 
-    dismiss: function(e) {
+    dismiss(e) {
       e.preventDefault()
       this.setState({ bugFiled: false, expanded: false, bugURL: '' })
     },
 
-    handleChange: function(field) {
+    handleChange(field) {
       return e => {
         this.setState({ [field]: e.target.value })
       }
     },
 
-    render: function() {
-      let {
+    render() {
+      const {
         reporter,
         description,
         screenshotURL,
         notes,
-        mounted,
         loading,
         bugFiled,
         error,
         expanded,
         bugURL,
       } = this.state
-      if (!mounted) {
+      if (!this.isMounted) {
         return false
       }
       if (loading) {
@@ -255,18 +264,18 @@ if (isClientRender()) {
             >
               {error
                 ? <div>
-                    <div>Oops, something went wrong!</div>
-                    <div>Please try again later</div>
-                  </div>
+                  <div>Oops, something went wrong!</div>
+                  <div>Please try again later</div>
+                </div>
                 : <div>
-                    <div>Your bug has been filed successfully!</div>
-                    {bugURL &&
-                      <div>
-                        <a target="_blank" href={bugURL}>
+                  <div>Your bug has been filed successfully!</div>
+                  {bugURL &&
+                  <div>
+                    <a target="_blank" href={bugURL}>
                           Here is a link to it!
                         </a>
-                      </div>}
                   </div>}
+                </div>}
             </div>
             <div className="Redux-Bug-Reporter__show-hide-container">
               <button
@@ -332,19 +341,9 @@ if (isClientRender()) {
   })
 }
 
-const loadingLayout = (
-  <div className="Redux-Bug-Reporter">
-    <div className="Redux-Bug-Reporter__loading-container">
-      <span className="Redux-Bug-Reporter__loading" />
-    </div>
-  </div>
-)
-
-const mapStateToProps = store => {
-  return {
+const mapStateToProps = store => ({
     storeState: store,
-  }
-}
+  })
 
 const mapDispatchToProps = dispatch => {
   const boundActions = bindActionCreators(
@@ -357,9 +356,10 @@ const mapDispatchToProps = dispatch => {
   }
 }
 
+const BaseBugReporter = UnconnectedBugReporter || NoopUnconnectedBugReporter
 const ConnectedBugReporter = connect(mapStateToProps, mapDispatchToProps)(
-  UnconnectedBugReporter,
+  BaseBugReporter,
 )
 
-export { UnconnectedBugReporter }
+export { BaseBugReporter as UnconnectedBugReporter }
 export default ConnectedBugReporter

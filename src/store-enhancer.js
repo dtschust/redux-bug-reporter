@@ -7,31 +7,57 @@ const finishPlaybackActionType = 'REDUX_BUG_REPORTER_FINISH_PLAYBACK'
 
 export const playbackFlag = 'REDUX_BUG_REPORTER_PLAYBACK'
 
-export const overloadStore = function(payload) {
+export function overloadStore(payload) {
   return {
     type: overloadStoreActionType,
     payload,
   }
 }
 
-export const initializePlayback = function() {
+export function initializePlayback() {
   return {
     type: initializePlaybackActionType,
   }
 }
 
-export const finishPlayback = function(payload) {
+export function finishPlayback() {
   return {
     type: finishPlaybackActionType,
   }
 }
-let storeEnhancer = f => f
+
+
+export const middlewareData = {
+  actions: [],
+  bugReporterInitialState: {},
+  addAction(action) {
+    this.actions.push(action)
+  },
+  clearActions() {
+    this.actions = []
+  },
+  getActions() {
+    return this.actions
+  },
+  setBugReporterInitialState(state) {
+    this.bugReporterInitialState = state
+  },
+  getBugReporterInitialState() {
+    return this.bugReporterInitialState
+  },
+}
+
+
+const noopStoreEnhancer = f => f
+let storeEnhancer;
+
 if (isClientRender()) {
   storeEnhancer = createStore => (originalReducer, initialState, enhancer) => {
     let playbackEnabled = false
     // Handle the overloading in the reducer here
-    let reducer = function(state, action = {}) {
+    function reducer(state, action = {}) {
       if (action.type === overloadStoreActionType) {
+        // eslint-disable-next-line no-console
         console.warn(
           'Overriding the store. You should only be doing this if you are using the bug reporter',
         )
@@ -48,7 +74,7 @@ if (isClientRender()) {
 
       // Log the action
       if (isClientRender() && !playbackEnabled) {
-        let actions = middlewareData.getActions()
+        const actions = middlewareData.getActions()
         // If this is the first action, log the initial state
         if (actions.length === 0) {
           middlewareData.setBugReporterInitialState(state)
@@ -57,7 +83,7 @@ if (isClientRender()) {
         // Potentially redact any sensitive data in the action payload
         if (action.meta && action.meta.redactFromBugReporter) {
           let redactedAction = cloneDeep(action)
-          let meta = redactedAction.meta
+          const meta = redactedAction.meta
           if (meta.redactFromBugReporterFn) {
             redactedAction = meta.redactFromBugReporterFn(redactedAction)
 
@@ -76,18 +102,20 @@ if (isClientRender()) {
 
       // Remove the playback flag from the payload
       if (action[playbackFlag]) {
+        // eslint-disable-next-line no-param-reassign
         delete action[playbackFlag]
       }
 
+      // eslint-disable-next-line prefer-rest-params
       return originalReducer(...arguments)
     }
-    let store = createStore(reducer, initialState, enhancer)
-    let origDispatch = store.dispatch
+    const store = createStore(reducer, initialState, enhancer)
+    const origDispatch = store.dispatch
     middlewareData.clearActions()
     middlewareData.setBugReporterInitialState({})
 
     // wrap around dispatch disable all non-playback actions during playback
-    let dispatch = function(action) {
+    function dispatch(action, ...args) {
       // Allow overload and finishPlayback actions
       if (
         action &&
@@ -95,13 +123,13 @@ if (isClientRender()) {
         (action.type === overloadStoreActionType ||
           action.type === finishPlaybackActionType)
       ) {
-        return origDispatch(...arguments)
+        return origDispatch(action, ...args)
       }
       if (playbackEnabled && !action[playbackFlag]) {
         // ignore the action
-        return
+        return store.getState()
       }
-      return origDispatch(...arguments)
+      return origDispatch(action, ...args)
     }
 
     return {
@@ -111,24 +139,6 @@ if (isClientRender()) {
   }
 }
 
-export let middlewareData = {
-  actions: [],
-  bugReporterInitialState: {},
-  addAction: function(action) {
-    this.actions.push(action)
-  },
-  clearActions: function() {
-    this.actions = []
-  },
-  getActions: function() {
-    return this.actions
-  },
-  setBugReporterInitialState: function(state) {
-    this.bugReporterInitialState = state
-  },
-  getBugReporterInitialState: function() {
-    return this.bugReporterInitialState
-  },
-}
+const exportedEnhancer = storeEnhancer || noopStoreEnhancer
 
-export default storeEnhancer
+export default exportedEnhancer

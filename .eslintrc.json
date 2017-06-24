@@ -1,4 +1,7 @@
 {
+  "globals":{
+    "window": true
+  },
   "extends": [
     "airbnb",
     "prettier"

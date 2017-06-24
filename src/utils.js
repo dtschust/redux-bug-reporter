@@ -1,32 +1,26 @@
 import isClientRender from './is-client-render'
-export let errorData = {
+
+export const errorData = {
   errors: [],
-  addError: function(error) {
+  addError(error) {
     this.errors.push(error)
   },
-  clearErrors: function() {
+  clearErrors() {
     this.errors = []
   },
-  getErrors: function() {
+  getErrors() {
     return this.errors
   },
 }
 
-export const listenToErrors = function() {
-  if (isClientRender()) {
-    listenToConsoleError()
-    listenToOnError()
-  }
-}
-const listenToConsoleError = function() {
-  let origError = window.console.error
+function listenToConsoleError() {
+  const origError = window.console.error
   if (!origError.bugReporterOverrideComplete) {
-    window.console.error = function() {
-      var metadata
-      var args = Array.prototype.slice.apply(arguments)
+    window.console.error = function error(...args) {
+      let metadata
       if (args && args[0] && args[0].stack) {
         metadata = {
-          errorMsg: args[0].name + ': ' + args[0].message,
+          errorMsg: `${args[0].name  }: ${  args[0].message}`,
           stackTrace: args[0].stack,
         }
       } else {
@@ -41,23 +35,33 @@ const listenToConsoleError = function() {
   }
 }
 
-const listenToOnError = function() {
-  var origWindowError = window.onerror
+function listenToOnError() {
+  const origWindowError = window.onerror
   if (!origWindowError || !origWindowError.bugReporterOverrideComplete) {
-    window.onerror = function(
+    window.onerror = function onerror(
       errorMsg,
       url,
       lineNumber,
       columnNumber,
       errorObj,
     ) {
-      var metadata = {
+      const metadata = {
         errorMsg,
         stackTrace: errorObj && errorObj.stack,
       }
       errorData.addError(metadata)
-      origWindowError && origWindowError.apply(window, arguments)
+      if (origWindowError) {
+        // eslint-disable-next-line prefer-rest-params
+        origWindowError.apply(window, arguments)
+      }
     }
     window.onerror.bugReporterOverrideComplete = true
+  }
+}
+
+export function listenToErrors() {
+  if (isClientRender()) {
+    listenToConsoleError()
+    listenToOnError()
   }
 }

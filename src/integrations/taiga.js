@@ -1,36 +1,39 @@
 /* global fetch */
-require('isomorphic-fetch')
 import parser from 'ua-parser-js'
 
-const createSubmit = ({ token, project_id, ...rest }) => {
-  return newBug => {
-    let {
-      useragent,
-      notes,
-      description,
-      screenshotURL,
-      reporter,
-      actions,
-      initialState,
-      state,
-      consoleErrors,
-      meta,
-      windowDimensions,
-      windowLocation,
-    } = newBug
-    try {
-      actions = JSON.stringify(actions)
-      state = JSON.stringify(state)
-      initialState = JSON.stringify(initialState)
-      meta = JSON.stringify(meta)
-    } catch (e) {
-      return new Promise((resolve, reject) => {
-        reject(e)
-      })
-    }
-    var { name: uaName, version: uaVersion } = parser(useragent).browser
-    let title = `${description}`
-    let body = `Notes
+require('isomorphic-fetch')
+
+
+const createSubmit = ({ token, project_id, ...rest }) => newBug => {
+  /* eslint-disable prefer-const */
+  let {
+    useragent,
+    notes,
+    description,
+    screenshotURL,
+    reporter,
+    actions,
+    initialState,
+    state,
+    consoleErrors,
+    meta,
+    windowDimensions,
+    windowLocation,
+  } = newBug
+  /* eslint-enable prefer-const */
+  try {
+    actions = JSON.stringify(actions)
+    state = JSON.stringify(state)
+    initialState = JSON.stringify(initialState)
+    meta = JSON.stringify(meta)
+  } catch (e) {
+    return new Promise((resolve, reject) => {
+      reject(e)
+    })
+  }
+  const { name: uaName, version: uaVersion } = parser(useragent).browser
+  const title = `${description}`
+  const body = `Notes
 ${notes}
 
 ## Meta information
@@ -54,7 +57,7 @@ window.bugReporterPlayback(${actions},${initialState},${state},100)
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
-        Authorization: 'Bearer ' + token,
+        Authorization: `Bearer ${  token}`,
       },
       body: JSON.stringify({
         description: body,
@@ -62,12 +65,11 @@ window.bugReporterPlayback(${actions},${initialState},${state},100)
         project: project_id,
         ...rest,
       }),
-    }).then(function(response) {
+    }).then((response) => {
       if (!response.ok) {
         throw Error(response.statusText)
       }
       return response.json()
     })
   }
-}
 export default createSubmit

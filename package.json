@@ -10,7 +10,7 @@
     "build:example": "cross-env NODE_ENV=production webpack --inline --progress --colors --config example/webpack.example.config.js",
     "build": "npm run build:lib && npm run build:umd && npm run build:umd:min && npm run build:example",
     "clean": "rimraf lib dist coverage example/bundle.js",
-    "lint": "eslint src",
+    "lint": "eslint --ext='js,jsx' src",
     "prettier": "prettier --no-semi --single-quote --trailing-comma all --write 'src/**/*.js'",
     "prepublish": "npm run clean && npm run build",
     "publish-gh-pages": "npm run prepublish && ./scripts/publish-gh-pages.js",

@@ -1,4 +1,6 @@
 import ReduxBugReporter from './redux-bug-reporter'
-export storeEnhancer from './store-enhancer'
+import storeEnhancer from './store-enhancer'
+
+export { storeEnhancer }
 
 export default ReduxBugReporter

@@ -1,10 +1,12 @@
 /* global fetch */
-require('isomorphic-fetch')
 import parser from 'ua-parser-js'
 
+require('isomorphic-fetch')
+
 const createSubmit = config => {
-  let { access_token, ...rest } = config
+  const { access_token, ...rest } = config
   return newBug => {
+    /* eslint-disable prefer-const */
     let {
       useragent,
       notes,
@@ -19,6 +21,7 @@ const createSubmit = config => {
       windowDimensions,
       windowLocation,
     } = newBug
+    /* eslint-enable prefer-const */
     try {
       actions = JSON.stringify(actions)
       state = JSON.stringify(state)
@@ -29,9 +32,9 @@ const createSubmit = config => {
         reject(e)
       })
     }
-    var { name: uaName, version: uaVersion } = parser(useragent).browser
-    let title = `${description}`
-    let body = `Notes
+    const { name: uaName, version: uaVersion } = parser(useragent).browser
+    const title = `${description}`
+    const body = `Notes
 ${notes}
 
 Meta information
@@ -52,7 +55,7 @@ Bug submitted through https://github.com/dtschust/redux-bug-reporter
       method: 'post',
       headers: {
         Accept: 'application/json',
-        Authorization: 'Bearer ' + access_token, // eslint-disable-line camelcase
+        Authorization: `Bearer ${  access_token}`, // eslint-disable-line camelcase
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
@@ -62,7 +65,7 @@ Bug submitted through https://github.com/dtschust/redux-bug-reporter
           ...rest,
         },
       }),
-    }).then(function(response) {
+    }).then((response) => {
       if (!response.ok) {
         throw Error(response.statusText)
       }
