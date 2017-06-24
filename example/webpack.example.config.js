@@ -1,7 +1,7 @@
-var path = require('path')
-var webpack = require('webpack')
+let path = require('path')
+let webpack = require('webpack')
 
-var config = {
+let config = {
   devtool: 'eval',
   entry: [
     'babel-polyfill',
@@ -13,7 +13,7 @@ var config = {
     publicPath: '/'
   },
   plugins: [
-    new webpack.NoErrorsPlugin()
+    new webpack.NoEmitOnErrorsPlugin()
   ],
   module: {
     rules: [
