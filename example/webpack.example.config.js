@@ -1,7 +1,9 @@
-let path = require('path')
-let webpack = require('webpack')
+const path = require('path')
 
-let config = {
+// eslint-disable-next-line import/no-extraneous-dependencies
+const webpack = require('webpack')
+
+const config = {
   devtool: 'eval',
   entry: [
     'babel-polyfill',
