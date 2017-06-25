@@ -24,322 +24,312 @@ const loadingLayout = (
   </div>
 )
 
-// On the server, UnconnectedBugReporter is a placeholder component
-const NoopUnconnectedBugReporter = () => <span />
-let UnconnectedBugReporter
+const UnconnectedBugReporter = React.createClass({
+  displayName: 'Bug Reporter',
 
-if (isClientRender()) {
-  UnconnectedBugReporter = React.createClass({
-    displayName: 'Bug Reporter',
+  propTypes: {
+    // passed in from parent
+    submit: React.PropTypes.oneOfType([
+      React.PropTypes.func,
+      React.PropTypes.string,
+    ]).isRequired,
+    projectName: React.PropTypes.string.isRequired,
+    redactStoreState: React.PropTypes.func,
+    name: React.PropTypes.string,
+    meta: React.PropTypes.any, // eslint-disable-line react/forbid-prop-types
+    customEncode: React.PropTypes.func,
+    customDecode: React.PropTypes.func,
+    // Passed in by redux-bug-reporter
+    dispatch: React.PropTypes.func.isRequired,
+    storeState: React.PropTypes.any.isRequired, // eslint-disable-line react/forbid-prop-types
+    overloadStore: React.PropTypes.func.isRequired,
+    initializePlayback: React.PropTypes.func.isRequired,
+    finishPlayback: React.PropTypes.func.isRequired,
+  },
 
-    propTypes: {
-      // passed in from parent
-      submit: React.PropTypes.oneOfType([
-        React.PropTypes.func,
-        React.PropTypes.string,
-      ]).isRequired,
-      projectName: React.PropTypes.string.isRequired,
-      redactStoreState: React.PropTypes.func,
-      name: React.PropTypes.string,
-      meta: React.PropTypes.any, // eslint-disable-line react/forbid-prop-types
-      customEncode: React.PropTypes.func,
-      customDecode: React.PropTypes.func,
-      // Passed in by redux-bug-reporter
-      dispatch: React.PropTypes.func.isRequired,
-      storeState: React.PropTypes.any.isRequired, // eslint-disable-line react/forbid-prop-types
-      overloadStore: React.PropTypes.func.isRequired,
-      initializePlayback: React.PropTypes.func.isRequired,
-      finishPlayback: React.PropTypes.func.isRequired,
-    },
+  getInitialState() {
+    return {
+      expanded: false,
+      loading: false,
+      bugFiled: false,
+      reporter: this.props.name || '',
+      description: '',
+      screenshotURL: '',
+      notes: '',
+      error: '',
+      bugURL: '',
+    }
+  },
 
-    getInitialState() {
-      return {
-        expanded: false,
-        loading: false,
-        bugFiled: false,
-        reporter: this.props.name || '',
-        description: '',
-        screenshotURL: '',
-        notes: '',
-        error: '',
-        bugURL: '',
-      }
-    },
+  shouldComponentUpdate(nextProps, nextState) {
+    // Do not bother rerendering every props change.
+    // Rerender only needs to occur on state change
+    if (this.state !== nextState) {
+      return true
+    }
+    return false
+  },
 
-    shouldComponentUpdate(nextProps, nextState) {
-      // Do not bother rerendering every props change.
-      // Rerender only needs to occur on state change
-      if (this.state !== nextState) {
-        return true
-      }
-      return false
-    },
+  componentDidMount() {
+    listenToErrors()
+    // Global function to play back a bug
+    window.bugReporterPlayback = this.bugReporterPlayback
+  },
 
-    componentDidMount() {
-      this.isMounted = true;
-      listenToErrors()
-      // Global function to play back a bug
-      window.bugReporterPlayback = this.bugReporterPlayback
-    },
+  toggleExpanded() {
+    this.setState({ expanded: !this.state.expanded })
+  },
 
-    toggleExpanded() {
-      this.setState({ expanded: !this.state.expanded })
-    },
+  bugReporterPlayback(
+    actions,
+    initialState,
+    finalState,
+    delay = 100,
+  ) {
+    // eslint-disable-next-line no-shadow
+    const { dispatch, overloadStore, customDecode } = this.props
+    if (delay === -1) {
+      // Do not playback, just jump to the final state
+      overloadStore(finalState)
+      return
+    }
 
-    bugReporterPlayback(
-      actions,
-      initialState,
-      finalState,
-      delay = 100,
-    ) {
-      // eslint-disable-next-line no-shadow
-      const { dispatch, overloadStore, customDecode } = this.props
-      if (delay === -1) {
-        // Do not playback, just jump to the final state
-        overloadStore(finalState)
-        return
-      }
+    this.props.initializePlayback()
+    if (customDecode) {
+      /* eslint-disable no-param-reassign */
+      initialState = customDecode(initialState)
+      finalState = customDecode(finalState)
+      /* eslint-enable no-param-reassign */
+    }
+    overloadStore(initialState)
 
-      this.props.initializePlayback()
-      if (customDecode) {
-        /* eslint-disable no-param-reassign */
-        initialState = customDecode(initialState)
-        finalState = customDecode(finalState)
-        /* eslint-enable no-param-reassign */
-      }
-      overloadStore(initialState)
+    const performNextAction = () => {
+      const action = actions[0]
 
-      const performNextAction = () => {
-        const action = actions[0]
+      // Let store know this is a playback action
+      action[playbackFlag] = true
 
-        // Let store know this is a playback action
-        action[playbackFlag] = true
-
-        dispatch(action)
-        actions.splice(0, 1)
-        if (actions.length > 0) {
-          setTimeout(performNextAction, delay)
-        } else {
-          this.props.finishPlayback()
-          const storeState = this.props.storeState
-          const keys = Object.keys(storeState)
-          keys.forEach((key) => {
-            if (
-              !isEqual(storeState[key], finalState[key]) &&
-              // In case reducer is an immutableJS object, call toJSON on it.
-              !(
-                storeState[key].toJSON &&
-                finalState[key].toJSON &&
-                isEqual(storeState[key].toJSON(), finalState[key].toJSON())
-              )
-            ) {
-              console.log(
-                `The following reducer does not strictly equal the bug report final state: ${
-                  key
-                  }. I'll print them both out so you can see the differences.`,
-              )
-              console.log(
-                `${key  } current state:`,
-                storeState[key],
-                `\n${  key  } bug report state:`,
-                finalState[key],
-              )
-            }
-          })
-          console.log('Playback complete!')
-        }
-      }
-
-      performNextAction()
-    },
-
-    submit(e) {
-      e.preventDefault()
-      const {
-        submit,
-        projectName,
-        storeState,
-        redactStoreState,
-        meta,
-        customEncode,
-      } = this.props
-      const { reporter, description, screenshotURL, notes } = this.state
-      this.setState({ loading: true })
-
-      let state = storeState
-      let initialState = middlewareData.getBugReporterInitialState()
-      let promise
-      if (redactStoreState) {
-        initialState = redactStoreState(initialState)
-        state = redactStoreState(state)
-      }
-
-      if (customEncode) {
-        state = customEncode(state)
-        initialState = customEncode(initialState)
-      }
-      const newBug = {
-        projectName,
-        state,
-        initialState,
-        actions: middlewareData.getActions(),
-        consoleErrors: errorData.getErrors(),
-        reporter,
-        description,
-        screenshotURL,
-        notes,
-        meta,
-        useragent: window.navigator.userAgent,
-        windowDimensions: [window.innerWidth, window.innerHeight],
-        windowLocation: window.location.href,
-      }
-
-      // if submit is a function, call it instead of fetching
-      // and attach to the promise returned
-      if (isFunction(submit)) {
-        promise = submit(newBug)
+      dispatch(action)
+      actions.splice(0, 1)
+      if (actions.length > 0) {
+        setTimeout(performNextAction, delay)
       } else {
-        const submitFn = createSubmit({ url: submit })
-        promise = submitFn(newBug)
-      }
-
-      promise
-        .then((json = {}) => {
-          const { bugURL } = json
-          this.setState({
-            loading: false,
-            bugFiled: true,
-            bugURL,
-            expanded: true,
-          })
+        this.props.finishPlayback()
+        const storeState = this.props.storeState
+        const keys = Object.keys(storeState)
+        keys.forEach((key) => {
+          if (
+            !isEqual(storeState[key], finalState[key]) &&
+            // In case reducer is an immutableJS object, call toJSON on it.
+            !(
+              storeState[key].toJSON &&
+              finalState[key].toJSON &&
+              isEqual(storeState[key].toJSON(), finalState[key].toJSON())
+            )
+          ) {
+            console.log(
+              `The following reducer does not strictly equal the bug report final state: ${
+                key
+                }. I'll print them both out so you can see the differences.`,
+            )
+            console.log(
+              `${key  } current state:`,
+              storeState[key],
+              `\n${  key  } bug report state:`,
+              finalState[key],
+            )
+          }
         })
-        .catch(error => {
-          console.error('Error filing bug', error)
-          this.setState({
-            loading: false,
-            bugFiled: true,
-            error,
-            expanded: true,
-          })
+        console.log('Playback complete!')
+      }
+    }
+
+    performNextAction()
+  },
+
+  submit(e) {
+    e.preventDefault()
+    const {
+      submit,
+      projectName,
+      storeState,
+      redactStoreState,
+      meta,
+      customEncode,
+    } = this.props
+    const { reporter, description, screenshotURL, notes } = this.state
+    this.setState({ loading: true })
+
+    let state = storeState
+    let initialState = middlewareData.getBugReporterInitialState()
+    let promise
+    if (redactStoreState) {
+      initialState = redactStoreState(initialState)
+      state = redactStoreState(state)
+    }
+
+    if (customEncode) {
+      state = customEncode(state)
+      initialState = customEncode(initialState)
+    }
+    const newBug = {
+      projectName,
+      state,
+      initialState,
+      actions: middlewareData.getActions(),
+      consoleErrors: errorData.getErrors(),
+      reporter,
+      description,
+      screenshotURL,
+      notes,
+      meta,
+      useragent: window.navigator.userAgent,
+      windowDimensions: [window.innerWidth, window.innerHeight],
+      windowLocation: window.location.href,
+    }
+
+    // if submit is a function, call it instead of fetching
+    // and attach to the promise returned
+    if (isFunction(submit)) {
+      promise = submit(newBug)
+    } else {
+      const submitFn = createSubmit({ url: submit })
+      promise = submitFn(newBug)
+    }
+
+    promise
+      .then((json = {}) => {
+        const { bugURL } = json
+        this.setState({
+          loading: false,
+          bugFiled: true,
+          bugURL,
+          expanded: true,
         })
-    },
+      })
+      .catch(error => {
+        console.error('Error filing bug', error)
+        this.setState({
+          loading: false,
+          bugFiled: true,
+          error,
+          expanded: true,
+        })
+      })
+  },
 
-    dismiss(e) {
-      e.preventDefault()
-      this.setState({ bugFiled: false, expanded: false, bugURL: '' })
-    },
+  dismiss(e) {
+    e.preventDefault()
+    this.setState({ bugFiled: false, expanded: false, bugURL: '' })
+  },
 
-    handleChange(field) {
-      return e => {
-        this.setState({ [field]: e.target.value })
-      }
-    },
+  handleChange(field) {
+    return e => {
+      this.setState({ [field]: e.target.value })
+    }
+  },
 
-    render() {
-      const {
-        reporter,
-        description,
-        screenshotURL,
-        notes,
-        loading,
-        bugFiled,
-        error,
-        expanded,
-        bugURL,
-      } = this.state
-      if (!this.isMounted) {
-        return false
-      }
-      if (loading) {
-        return loadingLayout
-      }
+  render() {
+    const {
+      reporter,
+      description,
+      screenshotURL,
+      notes,
+      loading,
+      bugFiled,
+      error,
+      expanded,
+      bugURL,
+    } = this.state
+    if (loading) {
+      return loadingLayout
+    }
 
-      if (bugFiled) {
-        return (
-          <div className="Redux-Bug-Reporter">
-            <div
-              className={`Redux-Bug-Reporter__form Redux-Bug-Reporter__form--${error
-                ? 'fail'
-                : 'success'}`}
-            >
-              {error
-                ? <div>
-                  <div>Oops, something went wrong!</div>
-                  <div>Please try again later</div>
-                </div>
-                : <div>
-                  <div>Your bug has been filed successfully!</div>
-                  {bugURL &&
-                  <div>
-                    <a target="_blank" href={bugURL}>
-                          Here is a link to it!
-                        </a>
-                  </div>}
-                </div>}
-            </div>
-            <div className="Redux-Bug-Reporter__show-hide-container">
-              <button
-                className={`Redux-Bug-Reporter__show-hide-button Redux-Bug-Reporter__show-hide-button--${error
-                  ? 'expanded'
-                  : 'collapsed'}`}
-                onClick={this.dismiss}
-              />
-            </div>
-          </div>
-        )
-      }
-
+    if (bugFiled) {
       return (
         <div className="Redux-Bug-Reporter">
-          {expanded &&
-            <div className="Redux-Bug-Reporter__form">
-              <form onSubmit={this.submit}>
-                <input
-                  className="Redux-Bug-Reporter__form-input Redux-Bug-Reporter__form-input--reporter"
-                  onChange={this.handleChange('reporter')}
-                  value={reporter}
-                  placeholder="Name"
-                />
-                <input
-                  className="Redux-Bug-Reporter__form-input Redux-Bug-Reporter__form-input--description"
-                  onChange={this.handleChange('description')}
-                  value={description}
-                  placeholder="Description"
-                />
-                <input
-                  className="Redux-Bug-Reporter__form-input Redux-Bug-Reporter__form-input--screenshotURL"
-                  onChange={this.handleChange('screenshotURL')}
-                  value={screenshotURL}
-                  placeholder="Screenshot URL"
-                />
-                <textarea
-                  className="Redux-Bug-Reporter__form-input Redux-Bug-Reporter__form-input--notes"
-                  onChange={this.handleChange('notes')}
-                  value={notes}
-                  placeholder="Notes"
-                />
-                <button
-                  className="Redux-Bug-Reporter__submit-button"
-                  type="submit"
-                >
-                  File Bug
-                </button>
-              </form>
-            </div>}
+          <div
+            className={`Redux-Bug-Reporter__form Redux-Bug-Reporter__form--${error
+              ? 'fail'
+              : 'success'}`}
+          >
+            {error
+              ? <div>
+                <div>Oops, something went wrong!</div>
+                <div>Please try again later</div>
+              </div>
+              : <div>
+                <div>Your bug has been filed successfully!</div>
+                {bugURL &&
+                <div>
+                  <a target="_blank" href={bugURL}>
+                        Here is a link to it!
+                      </a>
+                </div>}
+              </div>}
+          </div>
           <div className="Redux-Bug-Reporter__show-hide-container">
             <button
-              className={`Redux-Bug-Reporter__show-hide-button Redux-Bug-Reporter__show-hide-button--${this
-                .state.expanded
+              className={`Redux-Bug-Reporter__show-hide-button Redux-Bug-Reporter__show-hide-button--${error
                 ? 'expanded'
                 : 'collapsed'}`}
-              onClick={this.toggleExpanded}
+              onClick={this.dismiss}
             />
           </div>
         </div>
       )
-    },
-  })
-}
+    }
+
+    return (
+      <div className="Redux-Bug-Reporter">
+        {expanded &&
+          <div className="Redux-Bug-Reporter__form">
+            <form onSubmit={this.submit}>
+              <input
+                className="Redux-Bug-Reporter__form-input Redux-Bug-Reporter__form-input--reporter"
+                onChange={this.handleChange('reporter')}
+                value={reporter}
+                placeholder="Name"
+              />
+              <input
+                className="Redux-Bug-Reporter__form-input Redux-Bug-Reporter__form-input--description"
+                onChange={this.handleChange('description')}
+                value={description}
+                placeholder="Description"
+              />
+              <input
+                className="Redux-Bug-Reporter__form-input Redux-Bug-Reporter__form-input--screenshotURL"
+                onChange={this.handleChange('screenshotURL')}
+                value={screenshotURL}
+                placeholder="Screenshot URL"
+              />
+              <textarea
+                className="Redux-Bug-Reporter__form-input Redux-Bug-Reporter__form-input--notes"
+                onChange={this.handleChange('notes')}
+                value={notes}
+                placeholder="Notes"
+              />
+              <button
+                className="Redux-Bug-Reporter__submit-button"
+                type="submit"
+              >
+                File Bug
+              </button>
+            </form>
+          </div>}
+        <div className="Redux-Bug-Reporter__show-hide-container">
+          <button
+            className={`Redux-Bug-Reporter__show-hide-button Redux-Bug-Reporter__show-hide-button--${this
+              .state.expanded
+              ? 'expanded'
+              : 'collapsed'}`}
+            onClick={this.toggleExpanded}
+          />
+        </div>
+      </div>
+    )
+  },
+})
 
 const mapStateToProps = store => ({
     storeState: store,
@@ -356,10 +346,9 @@ const mapDispatchToProps = dispatch => {
   }
 }
 
-const BaseBugReporter = UnconnectedBugReporter || NoopUnconnectedBugReporter
 const ConnectedBugReporter = connect(mapStateToProps, mapDispatchToProps)(
-  BaseBugReporter,
+  UnconnectedBugReporter,
 )
 
-export { BaseBugReporter as UnconnectedBugReporter }
+export { UnconnectedBugReporter }
 export default ConnectedBugReporter
