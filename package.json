@@ -79,6 +79,7 @@
     "gh-pages": "^1.0.0",
     "immutable": "^3.8.1",
     "jest": "^20.0.4",
+    "jest-fetch-mock": "^1.1.1",
     "less": "^2.7.1",
     "less-loader": "^4.0.4",
     "live-server": "^1.0.0",

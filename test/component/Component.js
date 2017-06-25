@@ -11,6 +11,8 @@ import {storeEnhancer} from '../../src/index'
 
 import ReduxBugReporter, { UnconnectedBugReporter } from '../../src/redux-bug-reporter'
 
+global.fetch = require('jest-fetch-mock')
+
 // let clientRender = true
 // function isClientRender () {
 //   return clientRender
@@ -71,18 +73,13 @@ describe('Redux Bug Reporter component tests', () => {
     })
   })
   describe('Client side render tests', () => {
-    // beforeEach(() => {
-      // clientRender = true
-      // const proxyquiredReduxBugReporter = proxyquire('../../src/redux-bug-reporter.js', {
-      //   './is-client-render': { default: isClientRender }
-      // })
-      // ReduxBugReporter = proxyquiredReduxBugReporter.default
-      // UnconnectedBugReporter = proxyquiredReduxBugReporter.UnconnectedBugReporter
-    // })
+    beforeEach(() => {
+      fetch.resetMocks()
+    })
     it('Happy path', (done) => {
-      // nock('http://redux-bug-reporter.com').post('/').reply(200, {
-      //   bugURL: 'http://redux-bug-reporter.com/id/1'
-      // })
+      fetch.mockResponse(JSON.stringify({
+        bugURL: 'http://redux-bug-reporter.com/id/1'
+      }), 200)
       const store = configureStore()
       const wrapper = mount(
         <Provider store={store}>
@@ -124,23 +121,24 @@ describe('Redux Bug Reporter component tests', () => {
       expect(reduxBugReporter.find('.Redux-Bug-Reporter__loading-container').length).toEqual(1)
 
       // Bug submission complete
-      // setTimeout(() => {
-      //   assert.isOk(reduxBugReporter.find('.Redux-Bug-Reporter__form--success').length === 1, 'Redux Bug Reporter Success displays')
-      //   assert.include(reduxBugReporter.find('.Redux-Bug-Reporter__form--success').html(), 'http://redux-bug-reporter.com/id/1', 'Link to bug displays')
+      setTimeout(() => {
+        expect(fetch.mock.calls[0][0]).toEqual('http://redux-bug-reporter.com');
+        expect(fetch.mock.calls[0][1].method).toEqual('post')
+        expect(reduxBugReporter.find('.Redux-Bug-Reporter__form--success').length).toEqual(1)
+        expect(reduxBugReporter.find('.Redux-Bug-Reporter__form--success').html()).toContain('http://redux-bug-reporter.com/id/1')
 
-      //   const closeButton = reduxBugReporter.find('button')
-      //   closeButton.simulate('click')
-      //   assert.isOk(reduxBugReporter.find('.Redux-Bug-Reporter'), 'Redux Bug Reporter is rendered')
-      //   assert.isOk(reduxBugReporter.find('.Redux-Bug-Reporter__form').length === 0, 'Redux Bug Reporter is collapsed')
-      //   done()
-      // }, 200)
-      done()
+        const closeButton = reduxBugReporter.find('button')
+        closeButton.simulate('click')
+        expect(reduxBugReporter.find('.Redux-Bug-Reporter')).toBeTruthy()
+        expect(reduxBugReporter.find('.Redux-Bug-Reporter__form').length).toEqual(0)
+        done()
+      }, 0)
     })
 
     it('customEncode and customDecode properties', (done) => {
-      // nock('http://redux-bug-reporter.com').post('/').reply(200, {
-      //   bugURL: 'http://redux-bug-reporter.com/id/1'
-      // })
+      fetch.mockResponse(JSON.stringify({
+        bugURL: 'http://redux-bug-reporter.com/id/1'
+      }), 200)
       const customEncode = (state) => state.toJSON()
       const customDecode = (state) => fromJS(state)
       const store = configureImmutableStore()
@@ -189,22 +187,23 @@ describe('Redux Bug Reporter component tests', () => {
       expect(reduxBugReporter.find('.Redux-Bug-Reporter__loading-container').length).toEqual(1)
 
       // Bug submission complete
-      // setTimeout(() => {
-      //   assert.isOk(reduxBugReporter.find('.Redux-Bug-Reporter__form--success').length === 1, 'Redux Bug Reporter Success displays')
-      //   assert.include(reduxBugReporter.find('.Redux-Bug-Reporter__form--success').html(), 'http://redux-bug-reporter.com/id/1', 'Link to bug displays')
+      setTimeout(() => {
+        expect(fetch.mock.calls[0][0]).toEqual('http://redux-bug-reporter.com');
+        expect(fetch.mock.calls[0][1].method).toEqual('post')
+        expect(reduxBugReporter.find('.Redux-Bug-Reporter__form--success').length).toEqual(1)
+        expect(reduxBugReporter.find('.Redux-Bug-Reporter__form--success').html()).toContain('http://redux-bug-reporter.com/id/1')
 
-      //   const closeButton = reduxBugReporter.find('button')
-      //   closeButton.simulate('click')
-      //   assert.isOk(reduxBugReporter.find('.Redux-Bug-Reporter'), 'Redux Bug Reporter is rendered')
-      //   assert.isOk(reduxBugReporter.find('.Redux-Bug-Reporter__form').length === 0, 'Redux Bug Reporter is collapsed')
-      //   done()
-      // }, 200)
-      done()
+        const closeButton = reduxBugReporter.find('button')
+        closeButton.simulate('click')
+        expect(reduxBugReporter.find('.Redux-Bug-Reporter')).toBeTruthy()
+        expect(reduxBugReporter.find('.Redux-Bug-Reporter__form')).toBeTruthy()
+        done()
+      }, 0)
     })
     it('Custom submit function', (done) => {
-      // nock('http://redux-bug-reporter.com').post('/').reply(200, {
-      //   bugURL: 'http://redux-bug-reporter.com/id/2'
-      // })
+      fetch.mockResponse(JSON.stringify({
+        bugURL: 'http://redux-bug-reporter.com/id/2'
+      }), 200)
       const store = configureStore()
       const submitFn = (newBug) => fetch('http://redux-bug-reporter.com', {
           method: 'post',
@@ -245,12 +244,13 @@ describe('Redux Bug Reporter component tests', () => {
       expect(reduxBugReporter.find('.Redux-Bug-Reporter__loading-container').length).toEqual(1)
 
       // Bug submission complete
-      // setTimeout(() => {
-      //   assert.isOk(reduxBugReporter.find('.Redux-Bug-Reporter__form--success').length === 1, 'Redux Bug Reporter Success displays')
-      //   assert.include(reduxBugReporter.find('.Redux-Bug-Reporter__form--success').html(), 'http://redux-bug-reporter.com/id/2', 'Link to bug displays')
-      //   done()
-      // }, 200)
-      done()
+      setTimeout(() => {
+        expect(fetch.mock.calls[0][0]).toEqual('http://redux-bug-reporter.com');
+        expect(fetch.mock.calls[0][1].method).toEqual('post')
+        expect(reduxBugReporter.find('.Redux-Bug-Reporter__form--success').length).toEqual(1)
+        expect(reduxBugReporter.find('.Redux-Bug-Reporter__form--success').html()).toContain('http://redux-bug-reporter.com/id/2')
+        done()
+      }, 0)
     })
     it('Error listeners', () => {
       errorData.clearErrors()
