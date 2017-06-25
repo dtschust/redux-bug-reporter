@@ -10,7 +10,7 @@ import {
   finishPlayback,
   playbackFlag,
 } from './store-enhancer'
-import isClientRender from './is-client-render'
+
 import { listenToErrors, errorData } from './utils'
 import createSubmit from './integrations/default'
 
@@ -24,42 +24,63 @@ const loadingLayout = (
   </div>
 )
 
-const UnconnectedBugReporter = React.createClass({
-  displayName: 'Bug Reporter',
+const propTypes = {
+  // passed in from parent
+  submit: React.PropTypes.oneOfType([
+    React.PropTypes.func,
+    React.PropTypes.string,
+  ]).isRequired,
+  projectName: React.PropTypes.string.isRequired,
+  redactStoreState: React.PropTypes.func,
+  name: React.PropTypes.string,
+  meta: React.PropTypes.any, // eslint-disable-line react/forbid-prop-types
+  customEncode: React.PropTypes.func,
+  customDecode: React.PropTypes.func,
+  // Passed in by redux-bug-reporter
+  dispatch: React.PropTypes.func.isRequired,
+  storeState: React.PropTypes.any.isRequired, // eslint-disable-line react/forbid-prop-types
+  overloadStore: React.PropTypes.func.isRequired,
+  initializePlayback: React.PropTypes.func.isRequired,
+  finishPlayback: React.PropTypes.func.isRequired,
+}
 
-  propTypes: {
-    // passed in from parent
-    submit: React.PropTypes.oneOfType([
-      React.PropTypes.func,
-      React.PropTypes.string,
-    ]).isRequired,
-    projectName: React.PropTypes.string.isRequired,
-    redactStoreState: React.PropTypes.func,
-    name: React.PropTypes.string,
-    meta: React.PropTypes.any, // eslint-disable-line react/forbid-prop-types
-    customEncode: React.PropTypes.func,
-    customDecode: React.PropTypes.func,
-    // Passed in by redux-bug-reporter
-    dispatch: React.PropTypes.func.isRequired,
-    storeState: React.PropTypes.any.isRequired, // eslint-disable-line react/forbid-prop-types
-    overloadStore: React.PropTypes.func.isRequired,
-    initializePlayback: React.PropTypes.func.isRequired,
-    finishPlayback: React.PropTypes.func.isRequired,
-  },
+const defaultProps = {
+  // passed in from parent
+  redactStoreState: undefined,
+  name: undefined,
+  meta: undefined,
+  customEncode: undefined,
+  customDecode: undefined,
+}
 
-  getInitialState() {
-    return {
+class UnconnectedBugReporter extends React.Component {
+
+  constructor(props) {
+    super()
+    this.state = {
       expanded: false,
       loading: false,
       bugFiled: false,
-      reporter: this.props.name || '',
+      reporter: props.name || '',
       description: '',
       screenshotURL: '',
       notes: '',
       error: '',
       bugURL: '',
     }
-  },
+
+    this.toggleExpanded = this.toggleExpanded.bind(this)
+    this.bugReporterPlayback = this.bugReporterPlayback.bind(this)
+    this.submit = this.submit.bind(this)
+    this.dismiss = this.dismiss.bind(this)
+    this.handleChange = this.handleChange.bind(this)
+  }
+
+  componentDidMount() {
+    listenToErrors()
+    // Global function to play back a bug
+    window.bugReporterPlayback = this.bugReporterPlayback
+  }
 
   shouldComponentUpdate(nextProps, nextState) {
     // Do not bother rerendering every props change.
@@ -68,17 +89,11 @@ const UnconnectedBugReporter = React.createClass({
       return true
     }
     return false
-  },
-
-  componentDidMount() {
-    listenToErrors()
-    // Global function to play back a bug
-    window.bugReporterPlayback = this.bugReporterPlayback
-  },
+  }
 
   toggleExpanded() {
     this.setState({ expanded: !this.state.expanded })
-  },
+  }
 
   bugReporterPlayback(
     actions,
@@ -145,7 +160,7 @@ const UnconnectedBugReporter = React.createClass({
     }
 
     performNextAction()
-  },
+  }
 
   submit(e) {
     e.preventDefault()
@@ -216,18 +231,18 @@ const UnconnectedBugReporter = React.createClass({
           expanded: true,
         })
       })
-  },
+  }
 
   dismiss(e) {
     e.preventDefault()
     this.setState({ bugFiled: false, expanded: false, bugURL: '' })
-  },
+  }
 
   handleChange(field) {
     return e => {
       this.setState({ [field]: e.target.value })
     }
-  },
+  }
 
   render() {
     const {
@@ -328,8 +343,12 @@ const UnconnectedBugReporter = React.createClass({
         </div>
       </div>
     )
-  },
-})
+  }
+}
+
+UnconnectedBugReporter.displayName = 'Bug Reporter'
+UnconnectedBugReporter.propTypes = propTypes
+UnconnectedBugReporter.defaultProps = defaultProps
 
 const mapStateToProps = store => ({
     storeState: store,
