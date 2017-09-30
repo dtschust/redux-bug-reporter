@@ -51,7 +51,7 @@
     "ua-parser-js": "^0.7.14"
   },
   "peerDependencies": {
-    "react": ">=0.14.0"
+    "react": ">=16.0"
   },
   "devDependencies": {
     "autoprefixer": "^7.1.4",
