@@ -4,13 +4,16 @@ import { fromJS } from 'immutable'
 import thunk from 'redux-thunk'
 
 import React from 'react'
-import { mount } from 'enzyme'
+import Enzyme, { mount } from 'enzyme';
+import Adapter from 'enzyme-adapter-react-16';
+
 import { Provider } from 'react-redux'
 import { errorData } from '../../src/utils'
 import {storeEnhancer} from '../../src/index'
 
 import ReduxBugReporter, { UnconnectedBugReporter } from '../../src/redux-bug-reporter'
 
+Enzyme.configure({ adapter: new Adapter() });
 global.fetch = require('jest-fetch-mock')
 
 require('es6-promise').polyfill()

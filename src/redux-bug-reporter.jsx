@@ -262,8 +262,6 @@ class UnconnectedBugReporter extends React.Component {
       return loadingLayout
     }
 
-    console.log('Rendering, expanded is ', expanded)
-
     if (bugFiled) {
       return (
         <div className="Redux-Bug-Reporter">
