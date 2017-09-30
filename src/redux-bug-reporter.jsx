@@ -184,9 +184,10 @@ class UnconnectedBugReporter extends React.Component {
     }
 
     if (customEncode) {
-      state = customEncode(state)
       initialState = customEncode(initialState)
+      state = customEncode(state)
     }
+
     const newBug = {
       projectName,
       state,

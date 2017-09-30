@@ -1,5 +1,3 @@
-import isClientRender from './is-client-render'
-
 export const errorData = {
   errors: [],
   addError(error) {
@@ -60,8 +58,6 @@ function listenToOnError() {
 }
 
 export function listenToErrors() {
-  if (isClientRender()) {
-    listenToConsoleError()
-    listenToOnError()
-  }
+  listenToConsoleError()
+  listenToOnError()
 }

@@ -1,8 +1,8 @@
-var path = require('path')
-var webpack = require('webpack')
-var ExtractTextPlugin = require('extract-text-webpack-plugin')
+const path = require('path')
+const webpack = require('webpack')
+const ExtractTextPlugin = require('extract-text-webpack-plugin')
 
-var config = {
+const config = {
   entry: [
     path.join(__dirname, 'src', 'redux-bug-reporter.less'),
     path.join(__dirname, 'src', 'index.js')
