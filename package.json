@@ -11,7 +11,7 @@
     "build": "npm run build:lib && npm run build:umd && npm run build:umd:min && npm run build:example",
     "clean": "rimraf lib dist coverage example/bundle.js",
     "lint": "eslint --ext='js,jsx' src test",
-    "prettier": "prettier --no-semi --single-quote --trailing-comma all --write 'src/**/*.js'",
+    "prettier": "prettier --write 'src/**/*.js'",
     "zzzprepublish": "npm run clean && npm run build",
     "publish-gh-pages": "npm run prepublish && ./scripts/publish-gh-pages.js",
     "start": "cross-env NODE_ENV=development webpack-dev-server --hot --inline --progress --colors --config example/webpack.example.config.js",
@@ -97,5 +97,11 @@
     "todomvc-app-css": "^2.0.6",
     "webpack": "^3.0.0",
     "webpack-dev-server": "^2.5.0"
+  },
+  "prettier": {
+    "semi": false,
+    "singleQuote": true,
+    "trailingComma": "all",
+    "useTabs": true
   }
 }
