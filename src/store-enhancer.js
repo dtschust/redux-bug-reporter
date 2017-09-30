@@ -25,7 +25,7 @@ export function finishPlayback() {
 	}
 }
 
-export const middlewareData = {
+export const enhancerLog = {
 	actions: [],
 	bugReporterInitialState: {},
 	addAction(action) {
@@ -71,10 +71,10 @@ const storeEnhancer = createStore => (
 
 		// Log the action
 		if (!playbackEnabled) {
-			const actions = middlewareData.getActions()
+			const actions = enhancerLog.getActions()
 			// If this is the first action, log the initial state
 			if (actions.length === 0) {
-				middlewareData.setBugReporterInitialState(state)
+				enhancerLog.setBugReporterInitialState(state)
 			}
 
 			// Potentially redact any sensitive data in the action payload
@@ -91,9 +91,9 @@ const storeEnhancer = createStore => (
 					// if there's no redactFromBugReporterFn, remove everything except the event type
 					redactedAction = { type: redactedAction.type }
 				}
-				middlewareData.addAction(redactedAction)
+				enhancerLog.addAction(redactedAction)
 			} else {
-				middlewareData.addAction(action)
+				enhancerLog.addAction(action)
 			}
 		}
 
@@ -108,8 +108,8 @@ const storeEnhancer = createStore => (
 	}
 	const store = createStore(reducer, initialState, enhancer)
 	const origDispatch = store.dispatch
-	middlewareData.clearActions()
-	middlewareData.setBugReporterInitialState({})
+	enhancerLog.clearActions()
+	enhancerLog.setBugReporterInitialState({})
 
 	// wrap around dispatch to disable all non-playback actions during playback
 	function dispatch(action, ...args) {

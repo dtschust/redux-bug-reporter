@@ -5,7 +5,7 @@ import { connect } from 'react-redux'
 import isEqual from 'lodash.isequal'
 import isFunction from 'lodash.isfunction'
 import {
-  middlewareData,
+  enhancerLog,
   overloadStore,
   initializePlayback,
   finishPlayback,
@@ -177,7 +177,7 @@ class UnconnectedBugReporter extends React.Component {
     this.setState({ loading: true })
 
     let state = storeState
-    let initialState = middlewareData.getBugReporterInitialState()
+    let initialState = enhancerLog.getBugReporterInitialState()
     let promise
     if (redactStoreState) {
       initialState = redactStoreState(initialState)
@@ -193,7 +193,7 @@ class UnconnectedBugReporter extends React.Component {
       projectName,
       state,
       initialState,
-      actions: middlewareData.getActions(),
+      actions: enhancerLog.getActions(),
       consoleErrors: errorData.getErrors(),
       reporter,
       description,

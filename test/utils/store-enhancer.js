@@ -2,7 +2,7 @@
 import { createStore, applyMiddleware, compose } from 'redux'
 import thunk from 'redux-thunk'
 
-import storeEnhancer, {overloadStore, initializePlayback, finishPlayback, playbackFlag, middlewareData} from '../../src/store-enhancer'
+import storeEnhancer, {overloadStore, initializePlayback, finishPlayback, playbackFlag, enhancerLog} from '../../src/store-enhancer'
 
 function reducer (state = [], action) {
   if (action) {
@@ -62,8 +62,8 @@ describe('Store Enhancer tests', () => {
     store.dispatch({ type: '2' })
     store.dispatch({ type: '3' })
 
-    expect(middlewareData.getBugReporterInitialState()).toEqual(initialState)
-    expect(middlewareData.getActions()).toEqual(expected)
+    expect(enhancerLog.getBugReporterInitialState()).toEqual(initialState)
+    expect(enhancerLog.getActions()).toEqual(expected)
 
     // Test simple redaction
     store.dispatch({
@@ -74,7 +74,7 @@ describe('Store Enhancer tests', () => {
       }
     })
     expected.push({ type: 'redaction A' })
-    expect(middlewareData.getActions()).toEqual(expected)
+    expect(enhancerLog.getActions()).toEqual(expected)
 
     // Test custom redaction
     store.dispatch({
@@ -89,7 +89,7 @@ describe('Store Enhancer tests', () => {
       }
     })
     expected.push({ type: 'redaction A', name: '▮▮▮▮ ▮▮▮▮▮', meta: { unrelatedMeta: 'foo' } })
-    expect(middlewareData.getActions()).toEqual(expected)
+    expect(enhancerLog.getActions()).toEqual(expected)
   })
 
   // TODO: Test thunked actions
