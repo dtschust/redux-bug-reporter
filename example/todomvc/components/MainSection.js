@@ -1,4 +1,5 @@
-import React, { Component, PropTypes } from 'react'
+import React, { Component } from 'react'
+import PropTypes from 'proptypes'
 import TodoItem from './TodoItem'
 import Footer from './Footer'
 import { SHOW_ALL, SHOW_COMPLETED, SHOW_ACTIVE } from '../constants/TodoFilters'
@@ -27,10 +28,12 @@ class MainSection extends Component {
     const { todos, actions } = this.props
     if (todos.length > 0) {
       return (
-        <input className="toggle-all"
-               type="checkbox"
-               checked={completedCount === todos.length}
-               onChange={actions.completeAll} />
+        <input
+          className="toggle-all"
+          type="checkbox"
+          checked={completedCount === todos.length}
+          onChange={actions.completeAll}
+        />
       )
     }
   }
@@ -42,11 +45,13 @@ class MainSection extends Component {
 
     if (todos.length) {
       return (
-        <Footer completedCount={completedCount}
-                activeCount={activeCount}
-                filter={filter}
-                onClearCompleted={this.handleClearCompleted.bind(this)}
-                onShow={this.handleShow.bind(this)} />
+        <Footer
+          completedCount={completedCount}
+          activeCount={activeCount}
+          filter={filter}
+          onClearCompleted={this.handleClearCompleted.bind(this)}
+          onShow={this.handleShow.bind(this)}
+        />
       )
     }
   }

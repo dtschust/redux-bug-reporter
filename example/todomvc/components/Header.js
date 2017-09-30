@@ -1,4 +1,5 @@
-import React, { PropTypes, Component } from 'react'
+import React, { Component } from 'react'
+import PropTypes from 'proptypes'
 import TodoTextInput from './TodoTextInput'
 
 class Header extends Component {
@@ -11,10 +12,12 @@ class Header extends Component {
   render() {
     return (
       <header className="header">
-          <h1>Redux todomvc example</h1>
-          <TodoTextInput newTodo
-                         onSave={this.handleSave.bind(this)}
-                         placeholder="What needs to be done?" />
+        <h1>Redux todomvc example</h1>
+        <TodoTextInput
+          newTodo
+          onSave={this.handleSave.bind(this)}
+          placeholder="What needs to be done?"
+        />
       </header>
     )
   }

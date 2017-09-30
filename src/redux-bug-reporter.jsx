@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'proptypes'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import isEqual from 'lodash.isequal'
@@ -26,22 +27,22 @@ const loadingLayout = (
 
 const propTypes = {
   // passed in from parent
-  submit: React.PropTypes.oneOfType([
-    React.PropTypes.func,
-    React.PropTypes.string,
+  submit: PropTypes.oneOfType([
+    PropTypes.func,
+    PropTypes.string,
   ]).isRequired,
-  projectName: React.PropTypes.string.isRequired,
-  redactStoreState: React.PropTypes.func,
-  name: React.PropTypes.string,
-  meta: React.PropTypes.any, // eslint-disable-line react/forbid-prop-types
-  customEncode: React.PropTypes.func,
-  customDecode: React.PropTypes.func,
+  projectName: PropTypes.string.isRequired,
+  redactStoreState: PropTypes.func,
+  name: PropTypes.string,
+  meta: PropTypes.any, // eslint-disable-line react/forbid-prop-types
+  customEncode: PropTypes.func,
+  customDecode: PropTypes.func,
   // Passed in by redux-bug-reporter
-  dispatch: React.PropTypes.func.isRequired,
-  storeState: React.PropTypes.any.isRequired, // eslint-disable-line react/forbid-prop-types
-  overloadStore: React.PropTypes.func.isRequired,
-  initializePlayback: React.PropTypes.func.isRequired,
-  finishPlayback: React.PropTypes.func.isRequired,
+  dispatch: PropTypes.func.isRequired,
+  storeState: PropTypes.any.isRequired, // eslint-disable-line react/forbid-prop-types
+  overloadStore: PropTypes.func.isRequired,
+  initializePlayback: PropTypes.func.isRequired,
+  finishPlayback: PropTypes.func.isRequired,
 }
 
 const defaultProps = {
@@ -260,6 +261,8 @@ class UnconnectedBugReporter extends React.Component {
     if (loading) {
       return loadingLayout
     }
+
+    console.log('Rendering, expanded is ', expanded)
 
     if (bugFiled) {
       return (

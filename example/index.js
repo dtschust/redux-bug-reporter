@@ -2,6 +2,7 @@
 
 import React from 'react'
 import ReactDOM from 'react-dom'
+import PropTypes from 'proptypes'
 import { Provider, connect } from 'react-redux'
 import { fromJS } from 'immutable'
 import 'todomvc-app-css/index.css'
@@ -58,15 +59,10 @@ const Root = function () {
   )
 }
 
-const Input = React.createClass({
-  displayName: 'Input',
-  propTypes: {
-    value: React.PropTypes.string,
-    dispatch: React.PropTypes.func
-  },
+class Input extends React.Component {
   handleChange (e) {
     this.props.dispatch(inputChange(e.target.value))
-  },
+  }
   render () {
     return (
       <div className='example__input'>
@@ -74,7 +70,12 @@ const Input = React.createClass({
       </div>
     )
   }
-})
+}
+
+Input.propTypes = {
+  value: PropTypes.string,
+  dispatch: PropTypes.func
+}
 
 const mapInputStateToProps = function ({ input }) {
   return { value: input.toJS().value }
@@ -82,24 +83,23 @@ const mapInputStateToProps = function ({ input }) {
 
 const ConnectedInput = connect(mapInputStateToProps)(Input)
 
-const Listener = React.createClass({
-  displayName: 'Listener',
-  propTypes: {
-    value: React.PropTypes.string,
-    numChanges: React.PropTypes.number,
-    dispatch: React.PropTypes.func
-  },
+class Listener extends React.Component {
   componentWillReceiveProps (nextProps) {
     if (this.props.value !== nextProps.value) {
       this.props.dispatch(incrementChangeCounter())
     }
-  },
+  }
   render () {
     return (
       <div className='example__counter'>Input has been changed {this.props.numChanges} times</div>
     )
   }
-})
+}
+Listener.propTypes = {
+  value: PropTypes.string,
+  numChanges: PropTypes.number,
+  dispatch: PropTypes.func
+}
 
 const mapListenerStateToProps = function ({ input }) {
   const { value, numChanges } = input.toJS()
