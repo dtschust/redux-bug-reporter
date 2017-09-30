@@ -4,5 +4,6 @@ module.exports = {
 	],
 	"setupFiles": [
 		"raf/polyfill"
-	]
+	],
+	"coverageDirectory": "./coverage/"
 }
