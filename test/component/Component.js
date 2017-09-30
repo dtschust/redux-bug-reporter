@@ -13,11 +13,6 @@ import ReduxBugReporter, { UnconnectedBugReporter } from '../../src/redux-bug-re
 
 global.fetch = require('jest-fetch-mock')
 
-// let clientRender = true
-// function isClientRender () {
-//   return clientRender
-// }
-
 require('es6-promise').polyfill()
 require('isomorphic-fetch')
 
@@ -43,304 +38,274 @@ function configureImmutableStore (initialState) {
   return createStore(immutableReducer, initialState, compose(storeEnhancer, applyMiddleware(thunk)))
 }
 
-// let ReduxBugReporter
-// let UnconnectedBugReporter
-
 describe('Redux Bug Reporter component tests', () => {
-  xdescribe('Server side render tests', () => {
-    // beforeEach(() => {
-      // TODO: Clean up these beforeEach functions
-      // clientRender = false
-      // const proxyquiredReduxBugReporter = proxyquire('../../src/redux-bug-reporter.js', {
-      //   './is-client-render': { default: isClientRender }
-      // })
-      // ReduxBugReporter = proxyquiredReduxBugReporter.default
-      // UnconnectedBugReporter = proxyquiredReduxBugReporter.UnconnectedBugReporter
-    // })
-    it('Server side render', () => {
-      // clientRender = false
-      const store = configureStore()
-      const wrapper = mount(
-        <Provider store={store}>
-          <ReduxBugReporter
-            projectName='foo'
-            submit='http://redux-bug-reporter.com'
-          />
-        </Provider>
-      )
-      const reduxBugReporter = wrapper.find(UnconnectedBugReporter)
-      expect(reduxBugReporter.html()).toEqual('<span></span>')
-    })
+  beforeEach(() => {
+    fetch.resetMocks()
   })
-  describe('Client side render tests', () => {
-    beforeEach(() => {
-      fetch.resetMocks()
-    })
-    it('Happy path', (done) => {
-      fetch.mockResponse(JSON.stringify({
-        bugURL: 'http://redux-bug-reporter.com/id/1'
-      }), 200)
-      const store = configureStore()
-      const wrapper = mount(
-        <Provider store={store}>
-          <ReduxBugReporter
-            projectName='foo'
-            submit='http://redux-bug-reporter.com'
-          />
-        </Provider>
-      )
-      const reduxBugReporter = wrapper.find(UnconnectedBugReporter)
-      const showHideButton = wrapper.find('.Redux-Bug-Reporter__show-hide-button')
+  it('Happy path', (done) => {
+    fetch.mockResponse(JSON.stringify({
+      bugURL: 'http://redux-bug-reporter.com/id/1'
+    }), 200)
+    const store = configureStore()
+    const wrapper = mount(
+      <Provider store={store}>
+        <ReduxBugReporter
+          projectName='foo'
+          submit='http://redux-bug-reporter.com'
+        />
+      </Provider>
+    )
+    const reduxBugReporter = wrapper.find(UnconnectedBugReporter)
+    const showHideButton = wrapper.find('.Redux-Bug-Reporter__show-hide-button')
+    expect(reduxBugReporter.find('.Redux-Bug-Reporter')).toBeTruthy()
+
+    // Form not initially expanded
+    expect(reduxBugReporter.find('.Redux-Bug-Reporter__form').length).toEqual(0)
+    showHideButton.simulate('click')
+
+    // Expanded
+    expect(reduxBugReporter.find('.Redux-Bug-Reporter__form').length).toEqual(1)
+    showHideButton.simulate('click')
+
+    // Collapsed
+    expect(reduxBugReporter.find('.Redux-Bug-Reporter__form').length).toEqual(0)
+
+    showHideButton.simulate('click')
+
+    // Expanded
+    expect(reduxBugReporter.find('.Redux-Bug-Reporter__form').length).toEqual(1)
+
+    // Edit the inputs
+    // TODO: Validate inputs
+    reduxBugReporter.find('.Redux-Bug-Reporter__form-input--reporter').simulate('change', { target: { value: 'Drew Schuster' } })
+
+    // Submit the bug
+    const form = wrapper.find('form')
+    form.prop('onSubmit')({ preventDefault: () => {} })
+
+    // Loading
+    expect(reduxBugReporter.find('.Redux-Bug-Reporter__loading-container').length).toEqual(1)
+
+    // Bug submission complete
+    setTimeout(() => {
+      expect(fetch.mock.calls[0][0]).toEqual('http://redux-bug-reporter.com');
+      expect(fetch.mock.calls[0][1].method).toEqual('post')
+      expect(reduxBugReporter.find('.Redux-Bug-Reporter__form--success').length).toEqual(1)
+      expect(reduxBugReporter.find('.Redux-Bug-Reporter__form--success').html()).toContain('http://redux-bug-reporter.com/id/1')
+
+      const closeButton = reduxBugReporter.find('button')
+      closeButton.simulate('click')
       expect(reduxBugReporter.find('.Redux-Bug-Reporter')).toBeTruthy()
-
-      // Form not initially expanded
       expect(reduxBugReporter.find('.Redux-Bug-Reporter__form').length).toEqual(0)
-      showHideButton.simulate('click')
+      done()
+    }, 0)
+  })
 
-      // Expanded
-      expect(reduxBugReporter.find('.Redux-Bug-Reporter__form').length).toEqual(1)
-      showHideButton.simulate('click')
+  it('customEncode and customDecode properties', (done) => {
+    fetch.mockResponse(JSON.stringify({
+      bugURL: 'http://redux-bug-reporter.com/id/1'
+    }), 200)
+    const customEncode = (state) => state.toJSON()
+    const customDecode = (state) => fromJS(state)
+    const store = configureImmutableStore()
+    const wrapper = mount(
+      <Provider store={store}>
+        <ReduxBugReporter
+          projectName='foo'
+          submit='http://redux-bug-reporter.com'
+          customEncode={customEncode}
+          customDecode={customDecode}
+        />
+      </Provider>
+    )
+    store.dispatch({type: 'FOO'})
+    const reduxBugReporter = wrapper.find(UnconnectedBugReporter)
+    const showHideButton = wrapper.find('.Redux-Bug-Reporter__show-hide-button')
 
-      // Collapsed
-      expect(reduxBugReporter.find('.Redux-Bug-Reporter__form').length).toEqual(0)
+    // Is rendered
+    expect(reduxBugReporter.find('.Redux-Bug-Reporter')).toBeTruthy()
 
-      showHideButton.simulate('click')
+    // Form not initially expanded
+    expect(reduxBugReporter.find('.Redux-Bug-Reporter__form').length).toEqual(0)
+    showHideButton.simulate('click')
 
-      // Expanded
-      expect(reduxBugReporter.find('.Redux-Bug-Reporter__form').length).toEqual(1)
+    // Expanded
+    expect(reduxBugReporter.find('.Redux-Bug-Reporter__form').length).toEqual(1)
+    showHideButton.simulate('click')
 
-      // Edit the inputs
-      // TODO: Validate inputs
-      reduxBugReporter.find('.Redux-Bug-Reporter__form-input--reporter').simulate('change', { target: { value: 'Drew Schuster' } })
+    // Collapsed
+    expect(reduxBugReporter.find('.Redux-Bug-Reporter__form').length).toEqual(0)
 
-      // Submit the bug
-      const form = wrapper.find('form')
-      form.prop('onSubmit')({ preventDefault: () => {} })
+    showHideButton.simulate('click')
 
-      // Loading
-      expect(reduxBugReporter.find('.Redux-Bug-Reporter__loading-container').length).toEqual(1)
+    // Expanded
+    expect(reduxBugReporter.find('.Redux-Bug-Reporter__form').length).toEqual(1)
 
-      // Bug submission complete
-      setTimeout(() => {
-        expect(fetch.mock.calls[0][0]).toEqual('http://redux-bug-reporter.com');
-        expect(fetch.mock.calls[0][1].method).toEqual('post')
-        expect(reduxBugReporter.find('.Redux-Bug-Reporter__form--success').length).toEqual(1)
-        expect(reduxBugReporter.find('.Redux-Bug-Reporter__form--success').html()).toContain('http://redux-bug-reporter.com/id/1')
+    // Edit the inputs
+    // TODO: Validate inputs
+    reduxBugReporter.find('.Redux-Bug-Reporter__form-input--reporter').simulate('change', { target: { value: 'Drew Schuster' } })
 
-        const closeButton = reduxBugReporter.find('button')
-        closeButton.simulate('click')
-        expect(reduxBugReporter.find('.Redux-Bug-Reporter')).toBeTruthy()
-        expect(reduxBugReporter.find('.Redux-Bug-Reporter__form').length).toEqual(0)
-        done()
-      }, 0)
-    })
+    // Submit the bug
+    const form = wrapper.find('form')
+    form.prop('onSubmit')({ preventDefault: () => {} })
 
-    it('customEncode and customDecode properties', (done) => {
-      fetch.mockResponse(JSON.stringify({
-        bugURL: 'http://redux-bug-reporter.com/id/1'
-      }), 200)
-      const customEncode = (state) => state.toJSON()
-      const customDecode = (state) => fromJS(state)
-      const store = configureImmutableStore()
-      const wrapper = mount(
-        <Provider store={store}>
-          <ReduxBugReporter
-            projectName='foo'
-            submit='http://redux-bug-reporter.com'
-            customEncode={customEncode}
-            customDecode={customDecode}
-          />
-        </Provider>
-      )
-      store.dispatch({type: 'FOO'})
-      const reduxBugReporter = wrapper.find(UnconnectedBugReporter)
-      const showHideButton = wrapper.find('.Redux-Bug-Reporter__show-hide-button')
+    // loading
+    expect(reduxBugReporter.find('.Redux-Bug-Reporter__loading-container').length).toEqual(1)
 
-      // Is rendered
+    // Bug submission complete
+    setTimeout(() => {
+      expect(fetch.mock.calls[0][0]).toEqual('http://redux-bug-reporter.com');
+      expect(fetch.mock.calls[0][1].method).toEqual('post')
+      expect(reduxBugReporter.find('.Redux-Bug-Reporter__form--success').length).toEqual(1)
+      expect(reduxBugReporter.find('.Redux-Bug-Reporter__form--success').html()).toContain('http://redux-bug-reporter.com/id/1')
+
+      const closeButton = reduxBugReporter.find('button')
+      closeButton.simulate('click')
       expect(reduxBugReporter.find('.Redux-Bug-Reporter')).toBeTruthy()
-
-      // Form not initially expanded
-      expect(reduxBugReporter.find('.Redux-Bug-Reporter__form').length).toEqual(0)
-      showHideButton.simulate('click')
-
-      // Expanded
-      expect(reduxBugReporter.find('.Redux-Bug-Reporter__form').length).toEqual(1)
-      showHideButton.simulate('click')
-
-      // Collapsed
-      expect(reduxBugReporter.find('.Redux-Bug-Reporter__form').length).toEqual(0)
-
-      showHideButton.simulate('click')
-
-      // Expanded
-      expect(reduxBugReporter.find('.Redux-Bug-Reporter__form').length).toEqual(1)
-
-      // Edit the inputs
-      // TODO: Validate inputs
-      reduxBugReporter.find('.Redux-Bug-Reporter__form-input--reporter').simulate('change', { target: { value: 'Drew Schuster' } })
-
-      // Submit the bug
-      const form = wrapper.find('form')
-      form.prop('onSubmit')({ preventDefault: () => {} })
-
-      // loading
-      expect(reduxBugReporter.find('.Redux-Bug-Reporter__loading-container').length).toEqual(1)
-
-      // Bug submission complete
-      setTimeout(() => {
-        expect(fetch.mock.calls[0][0]).toEqual('http://redux-bug-reporter.com');
-        expect(fetch.mock.calls[0][1].method).toEqual('post')
-        expect(reduxBugReporter.find('.Redux-Bug-Reporter__form--success').length).toEqual(1)
-        expect(reduxBugReporter.find('.Redux-Bug-Reporter__form--success').html()).toContain('http://redux-bug-reporter.com/id/1')
-
-        const closeButton = reduxBugReporter.find('button')
-        closeButton.simulate('click')
-        expect(reduxBugReporter.find('.Redux-Bug-Reporter')).toBeTruthy()
-        expect(reduxBugReporter.find('.Redux-Bug-Reporter__form')).toBeTruthy()
-        done()
-      }, 0)
-    })
-    it('Custom submit function', (done) => {
-      fetch.mockResponse(JSON.stringify({
-        bugURL: 'http://redux-bug-reporter.com/id/2'
-      }), 200)
-      const store = configureStore()
-      const submitFn = (newBug) => fetch('http://redux-bug-reporter.com', {
-          method: 'post',
-          headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(newBug)
-        }).then((response) => {
-          if (!response.ok) {
-            throw Error(response.statusText)
-          }
-          return response.json()
-        })
-      const wrapper = mount(
-        <Provider store={store}>
-          <ReduxBugReporter
-            projectName='foo'
-            submit={submitFn}
-          />
-        </Provider>
-      )
-      const reduxBugReporter = wrapper.find(UnconnectedBugReporter)
-      const showHideButton = wrapper.find('.Redux-Bug-Reporter__show-hide-button')
-
-      // Rendered
-      expect(reduxBugReporter.find('.Redux-Bug-Reporter')).toBeTruthy()
-
-      showHideButton.simulate('click')
-
-      // Expands
-      expect(reduxBugReporter.find('.Redux-Bug-Reporter__form').length).toEqual(1)
-
-      // Submit the bug
-      const form = wrapper.find('form')
-      form.prop('onSubmit')({ preventDefault: () => {} })
-
-      expect(reduxBugReporter.find('.Redux-Bug-Reporter__loading-container').length).toEqual(1)
-
-      // Bug submission complete
-      setTimeout(() => {
-        expect(fetch.mock.calls[0][0]).toEqual('http://redux-bug-reporter.com');
-        expect(fetch.mock.calls[0][1].method).toEqual('post')
-        expect(reduxBugReporter.find('.Redux-Bug-Reporter__form--success').length).toEqual(1)
-        expect(reduxBugReporter.find('.Redux-Bug-Reporter__form--success').html()).toContain('http://redux-bug-reporter.com/id/2')
-        done()
-      }, 0)
-    })
-    it('Error listeners', () => {
-      errorData.clearErrors()
-      const store = configureStore()
-      mount(
-        <Provider store={store}>
-          <ReduxBugReporter
-            projectName='foo'
-            submit='http://redux-bug-reporter.com'
-          />
-        </Provider>
-      )
-
-      // verify overrides
-      expect(window.console.error.bugReporterOverrideComplete).toBeTruthy()
-      expect(window.onerror.bugReporterOverrideComplete).toBeTruthy()
-
-      // normal console error
-      window.console.error('Here is a console error')
-
-      expect(errorData.getErrors()).toEqual([{ errorMsg: 'Here is a console error' }])
-
-      // console error with stack trace
-      window.console.error({
-        name: 'name',
-        message: 'here is a message',
-        stack: 'This is a stack trace'
+      expect(reduxBugReporter.find('.Redux-Bug-Reporter__form')).toBeTruthy()
+      done()
+    }, 0)
+  })
+  it('Custom submit function', (done) => {
+    fetch.mockResponse(JSON.stringify({
+      bugURL: 'http://redux-bug-reporter.com/id/2'
+    }), 200)
+    const store = configureStore()
+    const submitFn = (newBug) => fetch('http://redux-bug-reporter.com', {
+        method: 'post',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(newBug)
+      }).then((response) => {
+        if (!response.ok) {
+          throw Error(response.statusText)
+        }
+        return response.json()
       })
-      let expected = {
-        errorMsg: 'name: here is a message',
-        stackTrace: 'This is a stack trace'
-      }
+    const wrapper = mount(
+      <Provider store={store}>
+        <ReduxBugReporter
+          projectName='foo'
+          submit={submitFn}
+        />
+      </Provider>
+    )
+    const reduxBugReporter = wrapper.find(UnconnectedBugReporter)
+    const showHideButton = wrapper.find('.Redux-Bug-Reporter__show-hide-button')
 
-      expect(errorData.getErrors()[1]).toEqual(expected)
+    // Rendered
+    expect(reduxBugReporter.find('.Redux-Bug-Reporter')).toBeTruthy()
 
-      // window onerror
-      expected = {
-        errorMsg: 'simple error message',
-        stackTrace: undefined
-      }
-      window.onerror('simple error message')
-      expect(errorData.getErrors()[2]).toEqual(expected)
+    showHideButton.simulate('click')
 
-      // window onerror with stack trace
-      expected = {
-        errorMsg: 'message',
-        stackTrace: 'stack trace'
-      }
-      window.onerror('message', undefined, undefined, undefined, { stack: 'stack trace' })
-      expect(errorData.getErrors()[3]).toEqual(expected)
+    // Expands
+    expect(reduxBugReporter.find('.Redux-Bug-Reporter__form').length).toEqual(1)
+
+    // Submit the bug
+    const form = wrapper.find('form')
+    form.prop('onSubmit')({ preventDefault: () => {} })
+
+    expect(reduxBugReporter.find('.Redux-Bug-Reporter__loading-container').length).toEqual(1)
+
+    // Bug submission complete
+    setTimeout(() => {
+      expect(fetch.mock.calls[0][0]).toEqual('http://redux-bug-reporter.com');
+      expect(fetch.mock.calls[0][1].method).toEqual('post')
+      expect(reduxBugReporter.find('.Redux-Bug-Reporter__form--success').length).toEqual(1)
+      expect(reduxBugReporter.find('.Redux-Bug-Reporter__form--success').html()).toContain('http://redux-bug-reporter.com/id/2')
+      done()
+    }, 0)
+  })
+  it('Error listeners', () => {
+    errorData.clearErrors()
+    const store = configureStore()
+    mount(
+      <Provider store={store}>
+        <ReduxBugReporter
+          projectName='foo'
+          submit='http://redux-bug-reporter.com'
+        />
+      </Provider>
+    )
+
+    // verify overrides
+    expect(window.console.error.bugReporterOverrideComplete).toBeTruthy()
+    expect(window.onerror.bugReporterOverrideComplete).toBeTruthy()
+
+    // normal console error
+    window.console.error('Here is a console error')
+
+    expect(errorData.getErrors()).toEqual([{ errorMsg: 'Here is a console error' }])
+
+    // console error with stack trace
+    window.console.error({
+      name: 'name',
+      message: 'here is a message',
+      stack: 'This is a stack trace'
     })
-    it('window.onerror listeners when window.onerror already exists', () => {
-      errorData.clearErrors()
-      // make window.onerror exist
-      let originalCalled = false
-      window.onerror = function onerror() {
-        originalCalled = true
-      }
-      const store = configureStore()
-      mount(
-        <Provider store={store}>
-          <ReduxBugReporter
-            projectName='foo'
-            submit='http://redux-bug-reporter.com'
-          />
-        </Provider>
-      )
+    let expected = {
+      errorMsg: 'name: here is a message',
+      stackTrace: 'This is a stack trace'
+    }
 
-      // verify overrides
-      expect(window.onerror.bugReporterOverrideComplete).toBeTruthy()
+    expect(errorData.getErrors()[1]).toEqual(expected)
 
-      // window onerror
-      let expected = {
-        errorMsg: 'simple error message',
-        stackTrace: undefined
-      }
-      window.onerror('simple error message')
-      expect(errorData.getErrors()[0]).toEqual(expected)
-      expect(originalCalled).toBeTruthy()
+    // window onerror
+    expected = {
+      errorMsg: 'simple error message',
+      stackTrace: undefined
+    }
+    window.onerror('simple error message')
+    expect(errorData.getErrors()[2]).toEqual(expected)
 
-      // window onerror with stack trace
-      originalCalled = false
-      expected = {
-        errorMsg: 'message',
-        stackTrace: 'stack trace'
-      }
-      window.onerror('message', undefined, undefined, undefined, { stack: 'stack trace' })
-      expect(errorData.getErrors()[1]).toEqual(expected)
-      expect(originalCalled).toBeTruthy()
-    })
+    // window onerror with stack trace
+    expected = {
+      errorMsg: 'message',
+      stackTrace: 'stack trace'
+    }
+    window.onerror('message', undefined, undefined, undefined, { stack: 'stack trace' })
+    expect(errorData.getErrors()[3]).toEqual(expected)
+  })
+  it('window.onerror listeners when window.onerror already exists', () => {
+    errorData.clearErrors()
+    // make window.onerror exist
+    let originalCalled = false
+    window.onerror = function onerror() {
+      originalCalled = true
+    }
+    const store = configureStore()
+    mount(
+      <Provider store={store}>
+        <ReduxBugReporter
+          projectName='foo'
+          submit='http://redux-bug-reporter.com'
+        />
+      </Provider>
+    )
+
+    // verify overrides
+    expect(window.onerror.bugReporterOverrideComplete).toBeTruthy()
+
+    // window onerror
+    let expected = {
+      errorMsg: 'simple error message',
+      stackTrace: undefined
+    }
+    window.onerror('simple error message')
+    expect(errorData.getErrors()[0]).toEqual(expected)
+    expect(originalCalled).toBeTruthy()
+
+    // window onerror with stack trace
+    originalCalled = false
+    expected = {
+      errorMsg: 'message',
+      stackTrace: 'stack trace'
+    }
+    window.onerror('message', undefined, undefined, undefined, { stack: 'stack trace' })
+    expect(errorData.getErrors()[1]).toEqual(expected)
+    expect(originalCalled).toBeTruthy()
   })
 })
 
