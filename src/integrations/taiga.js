@@ -3,6 +3,7 @@ import parser from 'ua-parser-js'
 
 require('isomorphic-fetch')
 
+// eslint-disable-next-line camelcase
 const createSubmit = ({ token, project_id, ...rest }) => newBug => {
 	/* eslint-disable prefer-const */
 	let {

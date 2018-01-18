@@ -118,6 +118,7 @@ class UnconnectedBugReporter extends React.Component {
 
 			dispatch(action)
 			actions.splice(0, 1)
+			/* eslint-disable no-console */
 			if (actions.length > 0) {
 				setTimeout(performNextAction, delay)
 			} else {
@@ -147,6 +148,7 @@ class UnconnectedBugReporter extends React.Component {
 				})
 				console.log('Playback complete!')
 			}
+			/* eslint-enable no-console */
 		}
 
 		performNextAction()
@@ -214,6 +216,7 @@ class UnconnectedBugReporter extends React.Component {
 				})
 			})
 			.catch(error => {
+				// eslint-disable-next-line no-console
 				console.error('Error filing bug', error)
 				this.setState({
 					loading: false,
