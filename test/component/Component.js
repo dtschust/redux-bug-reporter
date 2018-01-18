@@ -4,7 +4,7 @@ import { fromJS } from 'immutable'
 import thunk from 'redux-thunk'
 
 import React from 'react'
-import Enzyme, { mount } from 'enzyme'
+import Enzyme, { mount, shallow } from 'enzyme'
 import Adapter from 'enzyme-adapter-react-16'
 
 import { Provider } from 'react-redux'
@@ -333,7 +333,111 @@ describe('Redux Bug Reporter component tests', () => {
   })
 })
 
-// TODO: Test playback
+describe('Redux Bug Reporter playback tests', () => {
+  let defaultArgs;
+  let defaultProps;
+  const spyConsoleLog = jest
+    .spyOn(console, 'log')
+    .mockImplementation(() => {})
+
+  beforeEach(() => {
+    defaultArgs = {
+      actions: [{}],
+      initialState: null,
+      finalState: null,
+      delay: 100,
+    }
+    defaultProps = {
+      customDecode: jest.fn(arg => arg),
+      dispatch: jest.fn(),
+      finishPlayback: jest.fn(),
+      initializePlayback: jest.fn(),
+      overloadStore: jest.fn(),
+      projectName: 'foo',
+      storeState: {},
+      submit: 'http://redux-bug-reporter.com',
+    }
+  })
+
+  afterEach(() => {
+    defaultProps.customDecode.mockReset()
+    defaultProps.dispatch.mockReset()
+    defaultProps.finishPlayback.mockReset()
+    defaultProps.initializePlayback.mockReset()
+    defaultProps.overloadStore.mockReset()
+    spyConsoleLog.mockReset();
+  })
+
+  it('aborts when delay === -1', () => {
+    const props = { ...defaultProps }
+    const args = { ...defaultArgs, delay: -1 };
+    const instance = shallow(<UnconnectedBugReporter { ...props } />).instance()
+    instance.bugReporterPlayback(...Object.values(args))
+    expect(instance.props.overloadStore).toHaveBeenCalledTimes(1)
+  })
+
+  it('makes function calls', () => {
+    const props = { ...defaultProps }
+    const args = { ...defaultArgs }
+    const instance = shallow(<UnconnectedBugReporter { ...props } />).instance()
+    instance.bugReporterPlayback(...Object.values(args))
+    const { customDecode, initializePlayback, overloadStore } = instance.props
+    expect(customDecode).toHaveBeenCalledTimes(2)
+    expect(initializePlayback).toHaveBeenCalledTimes(1)
+    expect(overloadStore).toHaveBeenCalledTimes(1)
+    expect(spyConsoleLog).toHaveBeenCalledTimes(1)
+  });
+
+  it('does not call `customDecode` when undefined', () => {
+    const props = { ...defaultProps, customDecode: undefined }
+    const args = { ...defaultArgs }
+    const instance = shallow(<UnconnectedBugReporter { ...props } />).instance()
+    instance.bugReporterPlayback(...Object.values(args))
+    const { customDecode } = instance.props
+    expect(customDecode).toBe(undefined)
+  })
+
+  it('iterates actions', () => {
+    const props = { ...defaultProps }
+    const args = {
+      ...defaultArgs,
+      actions: [
+        defaultArgs.actions[0],
+        { type: 'ACTION_ONE', payload: { property: 'ACTION_ONE_PAYLOAD_PROPERTY' } },
+        { type: 'ACTION_TWO', payload: { property: 'ACTION_TWO_PAYLOAD_PROPERTY' } },
+      ],
+    }
+    const instance = shallow(<UnconnectedBugReporter { ...props } />).instance()
+    instance.bugReporterPlayback(...Object.values(args))
+    const { customDecode, dispatch, initializePlayback, overloadStore } = instance.props;
+    expect(customDecode).toHaveBeenCalledTimes(2);
+    expect(dispatch).toHaveBeenCalledTimes(1);
+    expect(initializePlayback).toHaveBeenCalledTimes(1)
+    expect(overloadStore).toHaveBeenCalledTimes(1)
+    expect(spyConsoleLog).toHaveBeenCalledTimes(0)
+  })
+
+  it('reports divergence between storeState and finalState', () => {
+    const storeState = { slice: { property: 'SLICE_PROPERTY' } }
+    const finalState = { slice: { mismatch: 'SLICE_MISMATCH' } }
+    const props = { ...defaultProps, storeState }
+    const args = { ...defaultArgs, finalState }
+    const instance = shallow(<UnconnectedBugReporter { ...props } />).instance()
+    instance.bugReporterPlayback(...Object.values(args))
+    expect(spyConsoleLog).toHaveBeenCalledTimes(3);
+  })
+
+  it('does not report when storeState and finalState are the same', () => {
+    const storeState = { slice: { property: 'SLICE_PROPERTY' } }
+    const finalState = { slice: { property: 'SLICE_PROPERTY' } }
+    const props = { ...defaultProps, storeState }
+    const args = { ...defaultArgs, finalState }
+    const instance = shallow(<UnconnectedBugReporter { ...props } />).instance()
+    instance.bugReporterPlayback(...Object.values(args))
+    expect(spyConsoleLog).toHaveBeenCalledTimes(1)
+  })
+})
+
 // TODO: Test submission failure
 // TODO: Test actually filling out the form, something's hard to mock out there
 // TODO: Test redactstorestate prop

@@ -131,7 +131,9 @@ class UnconnectedBugReporter extends React.Component {
 						// In case reducer is an immutableJS object, call toJSON on it.
 						!(
 							storeState[key].toJSON &&
+							/* istanbul ignore next */
 							finalState[key].toJSON &&
+							/* istanbul ignore next */
 							isEqual(storeState[key].toJSON(), finalState[key].toJSON())
 						)
 					) {
