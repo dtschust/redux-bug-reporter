@@ -18,7 +18,7 @@
     "start-static": "npm run build:example && cd example && live-server",
     "test": "jest",
     "test:watch": "jest --watch",
-    "test:cov": "jest --coverage --runInBand"
+    "test:cov": "jest --coverage"
   },
   "repository": {
     "type": "git",
@@ -80,7 +80,7 @@
     "extract-text-webpack-plugin": "^3.0.0",
     "gh-pages": "^1.0.0",
     "immutable": "^3.8.1",
-    "jest": "^21.2.1",
+    "jest": "^22.1.2",
     "jest-fetch-mock": "^1.2.1",
     "less": "^2.7.1",
     "less-loader": "^4.0.5",
