@@ -1,4 +1,5 @@
 /* global fetch */
+/* eslint-disable camelcase */
 import parser from 'ua-parser-js'
 
 require('isomorphic-fetch')
@@ -52,11 +53,9 @@ window.bugReporterPlayback(${actions},${initialState},${state},100)
 \`\`\`
 *Bug submitted through [redux-bug-reporter](https://github.com/dtschust/redux-bug-reporter)*
 `
-	/* eslint-disable camelcase */
 	return fetch(
 		`https://api.github.com/repos/${github_owner}/${github_repo}/issues?access_token=${access_token}`,
 		{
-			// eslint-disable-line camelcase
 			method: 'POST',
 			headers: {
 				Accept: 'application/json',
@@ -68,7 +67,6 @@ window.bugReporterPlayback(${actions},${initialState},${state},100)
 			}),
 		},
 	)
-	/* eslint-enable camelcase */
 }
 
 export default createSubmit
