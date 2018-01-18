@@ -18,7 +18,7 @@
     "start-static": "npm run build:example && cd example && live-server",
     "test": "jest",
     "test:watch": "jest --watch",
-    "test:cov": "jest --coverage"
+    "test:cov": "jest --coverage --runInBand"
   },
   "repository": {
     "type": "git",
