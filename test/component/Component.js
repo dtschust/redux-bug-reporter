@@ -13,7 +13,7 @@ import {storeEnhancer} from '../../src/index'
 
 import ReduxBugReporter, { UnconnectedBugReporter } from '../../src/redux-bug-reporter'
 
-Enzyme.configure({ adapter: new Adapter() });
+Enzyme.configure({ adapter: new Adapter() })
 global.fetch = require('jest-fetch-mock')
 
 require('es6-promise').polyfill()
@@ -46,10 +46,10 @@ describe('Redux Bug Reporter component tests', () => {
     fetch.resetMocks()
   })
 
-  let reduxBugReporter;
+  let reduxBugReporter
   const udpatedReduxBugReporter = wrapper => wrapper
     .update()
-    .find(UnconnectedBugReporter);
+    .find(UnconnectedBugReporter)
 
   it('Happy path', (done) => {
     fetch.mockResponse(JSON.stringify({
@@ -64,25 +64,25 @@ describe('Redux Bug Reporter component tests', () => {
         />
       </Provider>
     )
-    reduxBugReporter = udpatedReduxBugReporter(wrapper);
+    reduxBugReporter = udpatedReduxBugReporter(wrapper)
     const showHideButton = wrapper.find('.Redux-Bug-Reporter__show-hide-button')
     expect(reduxBugReporter.find('.Redux-Bug-Reporter')).toBeTruthy()
 
     // Form not initially expanded
     expect(reduxBugReporter.find('.Redux-Bug-Reporter__form').length).toEqual(0)
     showHideButton.simulate('click')
-    reduxBugReporter = udpatedReduxBugReporter(wrapper);
+    reduxBugReporter = udpatedReduxBugReporter(wrapper)
 
     // Expanded
     expect(reduxBugReporter.find('.Redux-Bug-Reporter__form').length).toEqual(1)
     showHideButton.simulate('click')
-    reduxBugReporter = udpatedReduxBugReporter(wrapper);
+    reduxBugReporter = udpatedReduxBugReporter(wrapper)
 
     // Collapsed
     expect(reduxBugReporter.find('.Redux-Bug-Reporter__form').length).toEqual(0)
 
     showHideButton.simulate('click')
-    reduxBugReporter = udpatedReduxBugReporter(wrapper);
+    reduxBugReporter = udpatedReduxBugReporter(wrapper)
 
     // Expanded
     expect(reduxBugReporter.find('.Redux-Bug-Reporter__form').length).toEqual(1)
@@ -90,27 +90,27 @@ describe('Redux Bug Reporter component tests', () => {
     // Edit the inputs
     // TODO: Validate inputs
     reduxBugReporter.find('.Redux-Bug-Reporter__form-input--reporter').simulate('change', { target: { value: 'Drew Schuster' } })
-    reduxBugReporter = udpatedReduxBugReporter(wrapper);
+    reduxBugReporter = udpatedReduxBugReporter(wrapper)
 
     // Submit the bug
     const form = wrapper.find('form')
     form.prop('onSubmit')({ preventDefault: () => {} })
 
     // Loading
-    reduxBugReporter = udpatedReduxBugReporter(wrapper);
+    reduxBugReporter = udpatedReduxBugReporter(wrapper)
     expect(reduxBugReporter.find('.Redux-Bug-Reporter__loading-container').length).toEqual(1)
 
     // Bug submission complete
     setTimeout(() => {
-      expect(fetch.mock.calls[0][0]).toEqual('http://redux-bug-reporter.com');
+      expect(fetch.mock.calls[0][0]).toEqual('http://redux-bug-reporter.com')
       expect(fetch.mock.calls[0][1].method).toEqual('post')
-      reduxBugReporter = udpatedReduxBugReporter(wrapper);
+      reduxBugReporter = udpatedReduxBugReporter(wrapper)
       expect(reduxBugReporter.find('.Redux-Bug-Reporter__form--success').length).toEqual(1)
       expect(reduxBugReporter.find('.Redux-Bug-Reporter__form--success').html()).toContain('http://redux-bug-reporter.com/id/1')
 
       const closeButton = reduxBugReporter.find('button')
       closeButton.simulate('click')
-      reduxBugReporter = udpatedReduxBugReporter(wrapper);
+      reduxBugReporter = udpatedReduxBugReporter(wrapper)
       expect(reduxBugReporter.find('.Redux-Bug-Reporter')).toBeTruthy()
       expect(reduxBugReporter.find('.Redux-Bug-Reporter__form').length).toEqual(0)
       done()
@@ -134,7 +134,7 @@ describe('Redux Bug Reporter component tests', () => {
       </Provider>
     )
     store.dispatch({type: 'FOO'})
-    reduxBugReporter = udpatedReduxBugReporter(wrapper);
+    reduxBugReporter = udpatedReduxBugReporter(wrapper)
     const showHideButton = wrapper.find('.Redux-Bug-Reporter__show-hide-button')
 
     // Is rendered
@@ -143,18 +143,18 @@ describe('Redux Bug Reporter component tests', () => {
     // Form not initially expanded
     expect(reduxBugReporter.find('.Redux-Bug-Reporter__form').length).toEqual(0)
     showHideButton.simulate('click')
-    reduxBugReporter = udpatedReduxBugReporter(wrapper);
+    reduxBugReporter = udpatedReduxBugReporter(wrapper)
 
     // Expanded
     expect(reduxBugReporter.find('.Redux-Bug-Reporter__form').length).toEqual(1)
     showHideButton.simulate('click')
-    reduxBugReporter = udpatedReduxBugReporter(wrapper);
+    reduxBugReporter = udpatedReduxBugReporter(wrapper)
 
     // Collapsed
     expect(reduxBugReporter.find('.Redux-Bug-Reporter__form').length).toEqual(0)
 
     showHideButton.simulate('click')
-    reduxBugReporter = udpatedReduxBugReporter(wrapper);
+    reduxBugReporter = udpatedReduxBugReporter(wrapper)
 
     // Expanded
     expect(reduxBugReporter.find('.Redux-Bug-Reporter__form').length).toEqual(1)
@@ -166,22 +166,22 @@ describe('Redux Bug Reporter component tests', () => {
     // Submit the bug
     const form = wrapper.find('form')
     form.prop('onSubmit')({ preventDefault: () => {} })
-    reduxBugReporter = udpatedReduxBugReporter(wrapper);
+    reduxBugReporter = udpatedReduxBugReporter(wrapper)
 
     // loading
     expect(reduxBugReporter.find('.Redux-Bug-Reporter__loading-container').length).toEqual(1)
 
     // Bug submission complete
     setTimeout(() => {
-      expect(fetch.mock.calls[0][0]).toEqual('http://redux-bug-reporter.com');
+      expect(fetch.mock.calls[0][0]).toEqual('http://redux-bug-reporter.com')
       expect(fetch.mock.calls[0][1].method).toEqual('post')
-      reduxBugReporter = udpatedReduxBugReporter(wrapper);
+      reduxBugReporter = udpatedReduxBugReporter(wrapper)
       expect(reduxBugReporter.find('.Redux-Bug-Reporter__form--success').length).toEqual(1)
       expect(reduxBugReporter.find('.Redux-Bug-Reporter__form--success').html()).toContain('http://redux-bug-reporter.com/id/1')
 
       const closeButton = reduxBugReporter.find('button')
       closeButton.simulate('click')
-      reduxBugReporter = udpatedReduxBugReporter(wrapper);
+      reduxBugReporter = udpatedReduxBugReporter(wrapper)
       expect(reduxBugReporter.find('.Redux-Bug-Reporter')).toBeTruthy()
       expect(reduxBugReporter.find('.Redux-Bug-Reporter__form')).toBeTruthy()
       done()
@@ -213,14 +213,14 @@ describe('Redux Bug Reporter component tests', () => {
         />
       </Provider>
     )
-    reduxBugReporter = udpatedReduxBugReporter(wrapper);
+    reduxBugReporter = udpatedReduxBugReporter(wrapper)
     const showHideButton = wrapper.find('.Redux-Bug-Reporter__show-hide-button')
 
     // Rendered
     expect(reduxBugReporter.find('.Redux-Bug-Reporter')).toBeTruthy()
 
     showHideButton.simulate('click')
-    reduxBugReporter = udpatedReduxBugReporter(wrapper);
+    reduxBugReporter = udpatedReduxBugReporter(wrapper)
 
     // Expands
     expect(reduxBugReporter.find('.Redux-Bug-Reporter__form').length).toEqual(1)
@@ -228,15 +228,15 @@ describe('Redux Bug Reporter component tests', () => {
     // Submit the bug
     const form = wrapper.find('form')
     form.prop('onSubmit')({ preventDefault: () => {} })
-    reduxBugReporter = udpatedReduxBugReporter(wrapper);
+    reduxBugReporter = udpatedReduxBugReporter(wrapper)
 
     expect(reduxBugReporter.find('.Redux-Bug-Reporter__loading-container').length).toEqual(1)
 
     // Bug submission complete
     setTimeout(() => {
-      expect(fetch.mock.calls[0][0]).toEqual('http://redux-bug-reporter.com');
+      expect(fetch.mock.calls[0][0]).toEqual('http://redux-bug-reporter.com')
       expect(fetch.mock.calls[0][1].method).toEqual('post')
-      reduxBugReporter = udpatedReduxBugReporter(wrapper);
+      reduxBugReporter = udpatedReduxBugReporter(wrapper)
       expect(reduxBugReporter.find('.Redux-Bug-Reporter__form--success').length).toEqual(1)
       expect(reduxBugReporter.find('.Redux-Bug-Reporter__form--success').html()).toContain('http://redux-bug-reporter.com/id/2')
       done()
