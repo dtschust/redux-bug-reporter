@@ -334,8 +334,8 @@ describe('Redux Bug Reporter component tests', () => {
 })
 
 describe('Redux Bug Reporter playback tests', () => {
-  let defaultArgs;
-  let defaultProps;
+  let defaultArgs
+  let defaultProps
   const spyConsoleLog = jest
     .spyOn(console, 'log')
     .mockImplementation(() => {})
@@ -345,7 +345,7 @@ describe('Redux Bug Reporter playback tests', () => {
       actions: [{}],
       initialState: null,
       finalState: null,
-      delay: 100,
+      delay: undefined,
     }
     defaultProps = {
       customDecode: jest.fn(arg => arg),
@@ -365,12 +365,12 @@ describe('Redux Bug Reporter playback tests', () => {
     defaultProps.finishPlayback.mockReset()
     defaultProps.initializePlayback.mockReset()
     defaultProps.overloadStore.mockReset()
-    spyConsoleLog.mockReset();
+    spyConsoleLog.mockReset()
   })
 
   it('aborts when delay === -1', () => {
     const props = { ...defaultProps }
-    const args = { ...defaultArgs, delay: -1 };
+    const args = { ...defaultArgs, delay: -1 }
     const instance = shallow(<UnconnectedBugReporter { ...props } />).instance()
     instance.bugReporterPlayback(...Object.values(args))
     expect(instance.props.overloadStore).toHaveBeenCalledTimes(1)
@@ -386,7 +386,7 @@ describe('Redux Bug Reporter playback tests', () => {
     expect(initializePlayback).toHaveBeenCalledTimes(1)
     expect(overloadStore).toHaveBeenCalledTimes(1)
     expect(spyConsoleLog).toHaveBeenCalledTimes(1)
-  });
+  })
 
   it('does not call `customDecode` when undefined', () => {
     const props = { ...defaultProps, customDecode: undefined }
@@ -409,9 +409,9 @@ describe('Redux Bug Reporter playback tests', () => {
     }
     const instance = shallow(<UnconnectedBugReporter { ...props } />).instance()
     instance.bugReporterPlayback(...Object.values(args))
-    const { customDecode, dispatch, initializePlayback, overloadStore } = instance.props;
-    expect(customDecode).toHaveBeenCalledTimes(2);
-    expect(dispatch).toHaveBeenCalledTimes(1);
+    const { customDecode, dispatch, initializePlayback, overloadStore } = instance.props
+    expect(customDecode).toHaveBeenCalledTimes(2)
+    expect(dispatch).toHaveBeenCalledTimes(1)
     expect(initializePlayback).toHaveBeenCalledTimes(1)
     expect(overloadStore).toHaveBeenCalledTimes(1)
     expect(spyConsoleLog).toHaveBeenCalledTimes(0)
@@ -424,7 +424,7 @@ describe('Redux Bug Reporter playback tests', () => {
     const args = { ...defaultArgs, finalState }
     const instance = shallow(<UnconnectedBugReporter { ...props } />).instance()
     instance.bugReporterPlayback(...Object.values(args))
-    expect(spyConsoleLog).toHaveBeenCalledTimes(3);
+    expect(spyConsoleLog).toHaveBeenCalledTimes(3)
   })
 
   it('does not report when storeState and finalState are the same', () => {
@@ -435,6 +435,59 @@ describe('Redux Bug Reporter playback tests', () => {
     const instance = shallow(<UnconnectedBugReporter { ...props } />).instance()
     instance.bugReporterPlayback(...Object.values(args))
     expect(spyConsoleLog).toHaveBeenCalledTimes(1)
+  })
+})
+
+describe('Redux Bug Reporter render', () => {
+  let defaultProps
+
+  beforeEach(() => {
+    defaultProps = {
+      customDecode: () => {},
+      dispatch: () => {},
+      finishPlayback: () => {},
+      initializePlayback: () => {},
+      overloadStore: () => {},
+      projectName: 'foo',
+      storeState: {},
+      submit: 'http://redux-bug-reporter.com',
+    }
+  })
+
+  it('renders button without the form', () => {
+    const props = { ...defaultProps }
+    const wrapper = shallow(<UnconnectedBugReporter { ...props } />)
+    expect(wrapper).toMatchSnapshot()
+  })
+
+  it('renders button and form', () => {
+    const props = { ...defaultProps }
+    const wrapper = shallow(<UnconnectedBugReporter { ...props } />)
+    wrapper.instance().setState({ expanded: true })
+    wrapper.update()
+    expect(wrapper).toMatchSnapshot()
+  })
+
+  it('renders error message', () => {
+    const props = { ...defaultProps }
+    const wrapper = shallow(<UnconnectedBugReporter { ...props } />)
+    wrapper.instance().setState({
+      bugFiled: true,
+      error: true,
+    })
+    wrapper.update()
+    expect(wrapper).toMatchSnapshot()
+  })
+
+  it('renders success after filing bug report', () => {
+    const props = { ...defaultProps }
+    const wrapper = shallow(<UnconnectedBugReporter { ...props } />)
+    wrapper.instance().setState({
+      bugFiled: true,
+      bugURL: 'BUG_URL',
+    })
+    wrapper.update()
+    expect(wrapper).toMatchSnapshot()
   })
 })
 

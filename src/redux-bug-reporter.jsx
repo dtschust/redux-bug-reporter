@@ -172,6 +172,7 @@ class UnconnectedBugReporter extends React.Component {
 		let state = storeState
 		let initialState = enhancerLog.getBugReporterInitialState()
 		let promise
+		/* istanbul ignore next */
 		if (redactStoreState) {
 			initialState = redactStoreState(initialState)
 			state = redactStoreState(state)
@@ -207,6 +208,7 @@ class UnconnectedBugReporter extends React.Component {
 			promise = submitFn(newBug)
 		}
 
+		/* istanbul ignore next */
 		promise
 			.then((json = {}) => {
 				const { bugURL } = json
