@@ -2,8 +2,9 @@ module.exports = {
 	testMatch: [
 		'<rootDir>/test/**/*.js'
 	],
-	"setupFiles": [
-		"raf/polyfill"
+	setupFiles: [
+		'raf/polyfill'
 	],
-	"coverageDirectory": "./coverage/"
+	coverageDirectory: './coverage/',
+	snapshotSerializers: ['enzyme-to-json/serializer'],
 }
