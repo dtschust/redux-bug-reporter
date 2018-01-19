@@ -1,3 +1,5 @@
+/* eslint-disable no-console */
+/* eslint-disable no-alert */
 const submitFn = newBug =>
 	new Promise((resolve, reject) => {
 		setTimeout(() => {

@@ -4,6 +4,7 @@ import parser from 'ua-parser-js'
 require('isomorphic-fetch')
 
 const createSubmit = config => {
+	// eslint-disable-next-line camelcase
 	const { access_token, ...rest } = config
 	return newBug => {
 		/* eslint-disable prefer-const */

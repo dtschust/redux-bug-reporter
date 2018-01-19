@@ -118,6 +118,7 @@ class UnconnectedBugReporter extends React.Component {
 
 			dispatch(action)
 			actions.splice(0, 1)
+			/* eslint-disable no-console */
 			if (actions.length > 0) {
 				setTimeout(performNextAction, delay)
 			} else {
@@ -130,7 +131,9 @@ class UnconnectedBugReporter extends React.Component {
 						// In case reducer is an immutableJS object, call toJSON on it.
 						!(
 							storeState[key].toJSON &&
+							/* istanbul ignore next */
 							finalState[key].toJSON &&
+							/* istanbul ignore next */
 							isEqual(storeState[key].toJSON(), finalState[key].toJSON())
 						)
 					) {
@@ -147,6 +150,7 @@ class UnconnectedBugReporter extends React.Component {
 				})
 				console.log('Playback complete!')
 			}
+			/* eslint-enable no-console */
 		}
 
 		performNextAction()
@@ -168,6 +172,7 @@ class UnconnectedBugReporter extends React.Component {
 		let state = storeState
 		let initialState = enhancerLog.getBugReporterInitialState()
 		let promise
+		/* istanbul ignore next */
 		if (redactStoreState) {
 			initialState = redactStoreState(initialState)
 			state = redactStoreState(state)
@@ -203,6 +208,7 @@ class UnconnectedBugReporter extends React.Component {
 			promise = submitFn(newBug)
 		}
 
+		/* istanbul ignore next */
 		promise
 			.then((json = {}) => {
 				const { bugURL } = json
@@ -214,6 +220,7 @@ class UnconnectedBugReporter extends React.Component {
 				})
 			})
 			.catch(error => {
+				// eslint-disable-next-line no-console
 				console.error('Error filing bug', error)
 				this.setState({
 					loading: false,

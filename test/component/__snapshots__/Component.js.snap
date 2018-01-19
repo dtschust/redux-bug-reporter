@@ -1,0 +1,128 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Redux Bug Reporter render renders button and form 1`] = `
+<div
+  className="Redux-Bug-Reporter"
+>
+  <div
+    className="Redux-Bug-Reporter__form"
+  >
+    <form
+      onSubmit={[Function]}
+    >
+      <input
+        className="Redux-Bug-Reporter__form-input Redux-Bug-Reporter__form-input--reporter"
+        onChange={[Function]}
+        placeholder="Name"
+        value=""
+      />
+      <input
+        className="Redux-Bug-Reporter__form-input Redux-Bug-Reporter__form-input--description"
+        onChange={[Function]}
+        placeholder="Description"
+        value=""
+      />
+      <input
+        className="Redux-Bug-Reporter__form-input Redux-Bug-Reporter__form-input--screenshotURL"
+        onChange={[Function]}
+        placeholder="Screenshot URL"
+        value=""
+      />
+      <textarea
+        className="Redux-Bug-Reporter__form-input Redux-Bug-Reporter__form-input--notes"
+        onChange={[Function]}
+        placeholder="Notes"
+        value=""
+      />
+      <button
+        className="Redux-Bug-Reporter__submit-button"
+        type="submit"
+      >
+        File Bug
+      </button>
+    </form>
+  </div>
+  <div
+    className="Redux-Bug-Reporter__show-hide-container"
+  >
+    <button
+      className="Redux-Bug-Reporter__show-hide-button Redux-Bug-Reporter__show-hide-button--expanded"
+      onClick={[Function]}
+    />
+  </div>
+</div>
+`;
+
+exports[`Redux Bug Reporter render renders button without the form 1`] = `
+<div
+  className="Redux-Bug-Reporter"
+>
+  <div
+    className="Redux-Bug-Reporter__show-hide-container"
+  >
+    <button
+      className="Redux-Bug-Reporter__show-hide-button Redux-Bug-Reporter__show-hide-button--collapsed"
+      onClick={[Function]}
+    />
+  </div>
+</div>
+`;
+
+exports[`Redux Bug Reporter render renders error message 1`] = `
+<div
+  className="Redux-Bug-Reporter"
+>
+  <div
+    className="Redux-Bug-Reporter__form Redux-Bug-Reporter__form--fail"
+  >
+    <div>
+      <div>
+        Oops, something went wrong!
+      </div>
+      <div>
+        Please try again later
+      </div>
+    </div>
+  </div>
+  <div
+    className="Redux-Bug-Reporter__show-hide-container"
+  >
+    <button
+      className="Redux-Bug-Reporter__show-hide-button Redux-Bug-Reporter__show-hide-button--expanded"
+      onClick={[Function]}
+    />
+  </div>
+</div>
+`;
+
+exports[`Redux Bug Reporter render renders success after filing bug report 1`] = `
+<div
+  className="Redux-Bug-Reporter"
+>
+  <div
+    className="Redux-Bug-Reporter__form Redux-Bug-Reporter__form--success"
+  >
+    <div>
+      <div>
+        Your bug has been filed successfully!
+      </div>
+      <div>
+        <a
+          href="BUG_URL"
+          target="_blank"
+        >
+          Here is a link to it!
+        </a>
+      </div>
+    </div>
+  </div>
+  <div
+    className="Redux-Bug-Reporter__show-hide-container"
+  >
+    <button
+      className="Redux-Bug-Reporter__show-hide-button Redux-Bug-Reporter__show-hide-button--collapsed"
+      onClick={[Function]}
+    />
+  </div>
+</div>
+`;
